@@ -1,2 +1,12 @@
 bin/*
 bin/classes.dex
+bin/ChizMover.apk
+bin/classes.dex
+bin/classes/jstudio/chizmover/managers/ResourceManager.class
+bin/classes/jstudio/chizmover/runtime/MainActivity.class
+bin/classes/jstudio/chizmover/scene/InGameScreen.class
+bin/classes/jstudio/chizmover/scene/ManagedScene.class
+bin/classes/jstudio/chizmover/scene/SplashScreen$1.class
+bin/classes/jstudio/chizmover/scene/SplashScreen.class
+bin/dexedLibs/andengine-e1944aaf4b8baa757ed630850dbdf876.jar
+bin/resources.ap_
