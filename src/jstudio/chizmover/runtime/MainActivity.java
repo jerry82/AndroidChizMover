@@ -2,6 +2,7 @@ package jstudio.chizmover.runtime;
 
 import java.io.IOException;
 
+import jstudio.chizmover.data.GameDB;
 import jstudio.chizmover.managers.ResourceManager;
 import jstudio.chizmover.managers.SceneManager;
 import jstudio.chizmover.scene.SplashScreen;
@@ -72,7 +73,10 @@ public class MainActivity extends BaseGameActivity {
 	public void onCreateScene(OnCreateSceneCallback pOnCreateSceneCallback)
 			throws IOException {
 		
-		SceneManager.getInstance().showScene(new SplashScreen(4f));
+		SceneManager.getInstance().showScene(new SplashScreen());
+		
+		GameDB.getInstance().getLevelDetail(1, 1);
+		
 		pOnCreateSceneCallback.onCreateSceneFinished(getEngine().getScene());
 	}
 

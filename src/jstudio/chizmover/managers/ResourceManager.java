@@ -11,6 +11,7 @@ import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.region.TextureRegion;
 
+import jstudio.chizmover.data.*;
 public class ResourceManager {
 
 	//constants
@@ -24,14 +25,8 @@ public class ResourceManager {
 	public float cameraHeight;
 	
 	//variables - game resources
-	public static TextureRegion gameSplashScreenTR;
-	public static BitmapTextureAtlas gameSplashScreenBMP;
-	
-	public static TextureRegion gameBotTR;
-	public static BitmapTextureAtlas gameBotBMP;
-	
-	public static TextureRegion gameBackgroundTR;
-	public static BitmapTextureAtlas gameBackgroundBMP;
+	public static final String WallImageName = "block40.png";
+	public static final String BotImageName = "bot40.png";
 	
 	public static Font gameFont;
 	
@@ -61,49 +56,22 @@ public class ResourceManager {
 		getInstance().cameraHeight = pCameraHeight;
 		
 		//load splashscene first
-		getInstance().loadSplashScreenResources();
+		//getInstance().loadSplashScreenResources();
+		
+		getInstance().createDatabase();
 	}
 	
 	/*
 	 * 	loading resources
 	 */
-
 	
-	public static void loadGameResources() {
-		getInstance().loadGameTextures();
-		getInstance().loadFont();
-		getInstance().loadSounds();
-	}
-	
-	//privates
-	private void loadSplashScreenResources() {
-		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-		if (gameSplashScreenTR == null) {
-			gameSplashScreenBMP = 
-					new BitmapTextureAtlas(getInstance().activity.getTextureManager(), 320, 568, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-						
-			gameSplashScreenTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameSplashScreenBMP, getInstance().activity, "SplashScreen.png", 0, 0);
-			gameSplashScreenBMP.load();
+	private void createDatabase() {
+		try {
+			DBHelper dbHelper = new DBHelper(getInstance().activity);
+			dbHelper.createDB();
 		}
-		
-	}
-	
-	private void loadGameTextures() {
-		//load graphics
-		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-		
-		//get bot
-		if (gameBotTR == null) {
-			gameBotBMP = 
-					new BitmapTextureAtlas(activity.getTextureManager(), 40, 40, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-			gameBotTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameBotBMP, activity, "bot40.png", 0, 0);
-		}
-		
-		//get background
-		if (gameBackgroundTR == null) {
-			gameBackgroundBMP = 
-					new BitmapTextureAtlas(activity.getTextureManager(), 360, 568, TextureOptions.DEFAULT);
-			gameBackgroundTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(gameBackgroundBMP, activity, "screen.png", 0, 0);
+		catch (Exception ex) {
+			System.out.println("Error create DB: " + ex.toString());
 		}
 	}
 	
