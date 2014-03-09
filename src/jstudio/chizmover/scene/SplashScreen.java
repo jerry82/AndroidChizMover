@@ -15,7 +15,7 @@ public class SplashScreen extends ManagedScene {
 	private float mAnimationDuration = 4f; //4s default
 	
 	public SplashScreen() {
-		super("SplashScreen_480x800.png");
+		super(ResourceManager.SplashScreenImage);
 	}
 	
 	@Override

@@ -25,8 +25,14 @@ public class ResourceManager {
 	public float cameraHeight;
 	
 	//variables - game resources
+	public static final String SplashScreenImage = "SplashScreen_480x800.png";
+	public static final String EpisodeScreenImage = "episodeScreen_480x800.png";
+	public static final String GameBackgroundImage = "screen_480x800.png";
+	
 	public static final String WallImageName = "block40.png";
 	public static final String BotImageName = "bot40.png";
+	public static final String BoxImageName = "box40.png";
+	public static final String TargetImageName = "spot40.png";
 	
 	public static Font gameFont;
 	

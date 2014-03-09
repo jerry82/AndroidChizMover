@@ -11,7 +11,7 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 public class EpisodeScreen extends ManagedScene {
 	
 	public EpisodeScreen() {
-		super("episodeScreen_480x800.png");
+		super(ResourceManager.EpisodeScreenImage);
 	}
 
 	@Override

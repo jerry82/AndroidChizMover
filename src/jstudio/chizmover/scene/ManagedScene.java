@@ -82,6 +82,9 @@ public abstract class ManagedScene extends Scene {
 	
 	protected void onUnloadScene() {
 		mBackgroundTextureAtlas.unload();
+		this.detachChildren();
+		this.clearTouchAreas();
+		this.unregisterTouchArea(mBackgroundSprite);
 	}
 	public abstract void onShowScene();
 	public abstract void onHideScene();

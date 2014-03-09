@@ -11,6 +11,10 @@ public class LevelDetailEntity {
 	private int mLevelNum;
 	private int mDifficulty;
 	
+	public LevelDetailEntity() {
+		
+	}
+	
 	public LevelDetailEntity(int pId, String pContent, int pPackId, int pLevelNum, int pDifficulty) {
 		this.mId = pId;
 		this.mContent = pContent;
