@@ -65,7 +65,7 @@ public class MainActivity extends BaseGameActivity {
 			OnCreateResourcesCallback pOnCreateResourcesCallback)
 			throws IOException {
 		
-		ResourceManager.setup(this, (LimitedFPSEngine) this.getEngine(), WIDTH, HEIGHT);
+		ResourceManager.setup(this, (LimitedFPSEngine) this.getEngine(), mCamera, WIDTH, HEIGHT);
 		pOnCreateResourcesCallback.onCreateResourcesFinished();
 	}
 

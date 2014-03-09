@@ -55,13 +55,14 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 	protected BitmapTextureAtlas mTargetBMP;
 	protected ITextureRegion mTargetTR;
 	
-	
-	
+
 	/*
 	 * 	constructor
 	 */
 	public InGameScreen() {
 		super(ResourceManager.GameBackgroundImage);
+		
+		
 		
 		mSpriteCurrentEdge = 40;
 		//create resources
@@ -193,7 +194,7 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 	}
 	
 	public void createMenuGUI() {
-		
+		this.setChildScene(new InGameMenu(ResourceManager.getInstance().camera));
 	}
 	
 	@Override
@@ -453,11 +454,18 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 						// TODO Auto-generated method stub
 						int[] curPos = getMatrixPos(new float[] {pItem.getX(), pItem.getY()});
 						updateMazeWithNewBoxPos(prevPos, curPos);
+						
+						if (GameManager.getInstance().checkGameWin(mMazeChars)) {
+							handleGameWin();
+						}
 					}
 				});
 		box.registerEntityModifier(moveForTheBox);
 	}
 	
+	private void handleGameWin() {
+		Log.i(TAG, "game is won");
+	}
 	
 	private boolean moveBot(String pathString, float[] botScenePos) {
 		if (pathString == null || pathString.length() == 0 || pathString == GameManager.PATH_OUTBOUND)

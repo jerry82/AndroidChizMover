@@ -112,4 +112,14 @@ public class GameManager {
 		String path = mPathFinder.getShortestPathString(mIntegerMaze, touchPos, botPos);
 		return path;
 	}
+	
+	public boolean checkGameWin(List<String> mazeChars) {
+		for (String line : mazeChars) {
+			//there is still box out there
+			if (line.indexOf(LEVEL_BOX_CHAR) > -1)
+				return false;
+		}
+		
+		return true;
+	}
 }
