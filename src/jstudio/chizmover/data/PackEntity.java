@@ -13,11 +13,18 @@ public class PackEntity {
 	
 	private boolean mLock;
 	
-	public PackEntity(int pId, String pDescription, int pCurrentLevel, boolean pLock) {
+	private int mNumberOfLevel;
+	
+	public PackEntity() {
+		
+	}
+	
+	public PackEntity(int pId, String pDescription, int pCurrentLevel, boolean pLock, int pNumberOfLevel) {
 		this.mId = pId;
 		this.mDescription = pDescription;
 		this.mCurrentLevel = pCurrentLevel;
 		this.mLock = pLock;
+		this.mNumberOfLevel = pNumberOfLevel;
 	}
 	
 	public int getId() {
@@ -50,5 +57,13 @@ public class PackEntity {
 	
 	public void setLock(boolean pLock) {
 		this.mLock = pLock;
+	}
+	
+	public int getNumberOfLevel() {
+		return mNumberOfLevel;
+	}
+	
+	public void setNumberOfLevel(int pNumberOfLevel) {
+		this.mNumberOfLevel = pNumberOfLevel;
 	}
 }

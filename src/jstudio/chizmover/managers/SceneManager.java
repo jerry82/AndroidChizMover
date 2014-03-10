@@ -43,4 +43,23 @@ public class SceneManager extends Object{
 		mNextScene.onShowManagedScene();
 		mCurrentScene = mNextScene;
 	}
+
+	/*
+	 * 	handle main menu
+	 */
+	public void handlePauseBtnClick() {
+		//show another menu
+	}
+	
+	public void handlePrevBtnClick() {
+		
+	}
+	
+	public void handleNextBtnClick() { 
+		
+	}
+	
+	/*
+	 * 	handle popup menu
+	 */
 }

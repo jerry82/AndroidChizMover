@@ -46,7 +46,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	}
 	
 	public void openDB() throws SQLException {
-		mDB = SQLiteDatabase.openDatabase(DB_FULLNAME, null, SQLiteDatabase.OPEN_READONLY);
+		mDB = SQLiteDatabase.openDatabase(DB_FULLNAME, null, SQLiteDatabase.OPEN_READWRITE);
 	}
 	
 	public void createDB() throws IOException {
