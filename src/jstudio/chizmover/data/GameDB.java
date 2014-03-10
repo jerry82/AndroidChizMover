@@ -82,7 +82,8 @@ public final class GameDB {
 					null, null, null);
 			
 			cursor.moveToFirst();
-			if (cursor != null) {
+			
+			if (cursor.getCount() > 0) {
 				entity = new LevelDetailEntity(cursor.getInt(0), 
 						cursor.getString(1), 
 						cursor.getInt(2), 

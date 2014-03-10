@@ -88,5 +88,10 @@ public abstract class ManagedScene extends Scene {
 	}
 	public abstract void onShowScene();
 	public abstract void onHideScene();
-	
+
+	//TODO to handle this
+	public void onBackKeyPressed() {
+		// TODO Auto-generated method stub
+		System.exit(0);
+	}
 }

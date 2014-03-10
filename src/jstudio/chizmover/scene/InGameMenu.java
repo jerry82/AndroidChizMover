@@ -1,6 +1,8 @@
 package jstudio.chizmover.scene;
 
+import jstudio.chizmover.managers.CurrentMenu;
 import jstudio.chizmover.managers.ResourceManager;
+import jstudio.chizmover.managers.SceneManager;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.scene.menu.MenuScene;
@@ -71,10 +73,9 @@ public class InGameMenu extends MenuScene implements IOnMenuItemClickListener {
 	    float pad = 10;
 	    pauseMI.setPosition(pauseMI.getWidth() / 2, this.getCamera().getCameraSceneHeight() - pad - pauseMI.getHeight() / 2);
 	    nextMI.setPosition(this.getCamera().getCameraSceneWidth() - nextMI.getWidth() / 2, pauseMI.getY());
-	    prevMI.setPosition(nextMI.getX() - pad - prevMI.getWidth(), pauseMI.getY());
+	    prevMI.setPosition(nextMI.getX() - prevMI.getWidth(), pauseMI.getY());
 	    
 	    this.setOnMenuItemClickListener(this);
-	    
 	}
 	
 	public void unLoad() {
@@ -88,22 +89,26 @@ public class InGameMenu extends MenuScene implements IOnMenuItemClickListener {
 	@Override
 	public boolean onMenuItemClicked(MenuScene pMenuScene, IMenuItem pMenuItem, float pMenuItemLocalX, float pMenuItemLocalY)
 	{
-		Log.i(TAG, "click menu");
-	    switch(pMenuItem.getID())
-	    {
-	        case 0:
-	        	Log.i(TAG, "click info");
-	            //action
-	            return true;
-	        case 1:
-	        	Log.i(TAG, "click prev");
-	            //action
-	            return true;
-	        case 2:
-	        	Log.i(TAG, "click next");
-	        	return true;
-	        default:
-	            return false;
-	    }
+		if (SceneManager.getInstance().getCurrentMenu() == CurrentMenu.NoMenu) {
+			switch(pMenuItem.getID())
+		    {
+		        case ResourceManager.PauseID:
+		        	Log.i(TAG, "click info");
+		        	SceneManager.getInstance().handlePauseBtnClick();
+		            return true;
+		        case ResourceManager.PrevID:
+		        	Log.i(TAG, "click prev");
+		        	SceneManager.getInstance().handlePrevBtnClick();
+		            //action
+		            return true;
+		        case ResourceManager.NextID:
+		        	Log.i(TAG, "click next");
+		        	SceneManager.getInstance().handleNextBtnClick();
+		        	return true;
+		        default:
+		            return false;
+		    }
+		}
+		return false;
 	}
 }

@@ -35,6 +35,8 @@ public class ResourceManager {
 	public static final String BotImageName = "bot40.png";
 	public static final String BoxImageName = "box40.png";
 	public static final String TargetImageName = "spot40.png";
+	public static final String CanmoveImage = "canMove40.png";
+	public static final String CannotMoveImage = "cannotMove40.png";
 	
 	public static final String PauseImageName = "pause50.png";
 	public static final int PauseID = 0;
@@ -44,6 +46,24 @@ public class ResourceManager {
 	
 	public static final String NextImageName = "next_btn50.png";
 	public static final int NextID = 2;
+	
+	public static final String MenuBgImage = "menu.png";
+	
+	public static final String MenuImage = "menu_btn50.png";
+	public static final int MenuID = 0;
+	
+	public static final String RestartImage = "restart_btn50.png";
+	public static final int RestartID = 1;
+	
+	public static final String RadioOnImage = "radioon_btn50.png";
+	public static final int RadioOnID = 2;
+	
+	public static final String RadioOffImage = "radiooff_btn50.png";
+	public static final int RadioOffID = 3;
+	
+	public static final String HelpImage = "help50.png";
+	public static final int HelpID = 4;
+	
 	
 	public static final int FixSizeSpriteEdge = 40;
 	public static final int FixSizeBtnEdge = 50;

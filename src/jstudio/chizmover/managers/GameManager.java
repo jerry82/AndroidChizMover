@@ -28,6 +28,8 @@ public class GameManager {
 	public static final float MOVE_UNIT_DURATION = 0.15F;
 	
 	
+	private LevelDetailEntity mCurrentLevel = null;
+	
 	private int[][] mIntegerMaze;
 	private PathFinder mPathFinder;
 	
@@ -49,21 +51,30 @@ public class GameManager {
 	}
 	//end
 	
+	public LevelDetailEntity getPrevLevel() {
+		LevelDetailEntity entity = null;
+		
+		if (mCurrentLevel == null) 
+			return entity;
+		
+		entity = GameDB.getInstance().getLevelDetail(mCurrentLevel.getPackId(), mCurrentLevel.getLevelNum() - 1);
+		
+		return entity;
+	}
 	
-	public LevelDetailEntity getNextLevel(LevelDetailEntity currentLevel) {
+	public LevelDetailEntity getNextLevel() {
 		
 		LevelDetailEntity entity = null;
 		int packId = -1;
 		int levelnum = -1;
 		
-		if (currentLevel == null) {
+		if (mCurrentLevel == null) {
 			packId = 1;
 			levelnum = 1;
 		}
 		else {
-			//TODO change to check last levelnum
-			packId = currentLevel.getPackId();
-			levelnum = currentLevel.getLevelNum() + 1;
+			packId = mCurrentLevel.getPackId();
+			levelnum = mCurrentLevel.getLevelNum() + 1;
 		}
 		
 		entity = GameDB.getInstance().getLevelDetail(packId, levelnum);
@@ -86,7 +97,8 @@ public class GameManager {
 			return;
 		
 		int row = mazeChars.size();
-		int col = mazeChars.get(0).length();
+		int col = getMazeWidth(mazeChars);
+		
 		
 		mIntegerMaze = new int[row][col];
 		
@@ -108,6 +120,18 @@ public class GameManager {
 		}
 	}
 
+	//return the max width
+	public int getMazeWidth(List<String> mazeChars) {
+		int result = 0;
+		
+		for (String line : mazeChars) {
+			if (result < line.length()) 
+				result = line.length();
+		}
+		
+		return result;
+	}
+	
 	public String getShortestPath(int[] touchPos, int[] botPos) {
 		String path = mPathFinder.getShortestPathString(mIntegerMaze, touchPos, botPos);
 		return path;
@@ -121,5 +145,19 @@ public class GameManager {
 		}
 		
 		return true;
+	}
+
+	public void setCurrentLevel(LevelDetailEntity pCurrentLevel) {
+		this.mCurrentLevel = pCurrentLevel;
+	}
+	
+	public LevelDetailEntity getCurrentLevel() {
+		
+		//first time load
+		if (mCurrentLevel == null) {
+			this.mCurrentLevel = getNextLevel();
+		}
+		 
+		return this.mCurrentLevel;
 	}
 }

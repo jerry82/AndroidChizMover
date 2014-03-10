@@ -4,12 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.andengine.entity.IEntity;
+import org.andengine.entity.modifier.AlphaModifier;
+import org.andengine.entity.modifier.DelayModifier;
 import org.andengine.entity.modifier.IEntityModifier.IEntityModifierListener;
 import org.andengine.entity.modifier.MoveModifier;
 import org.andengine.entity.modifier.PathModifier;
+import org.andengine.entity.modifier.PathModifier.IPathModifierListener;
 import org.andengine.entity.modifier.PathModifier.Path;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
+import org.andengine.entity.scene.menu.MenuScene;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.TextureOptions;
@@ -17,6 +21,7 @@ import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.util.modifier.IModifier;
+import org.andengine.util.modifier.ease.EaseLinear;
 
 import android.util.Log;
 
@@ -36,8 +41,15 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 	
 	
 	private Sprite botSprite; 
+	private Sprite canMoveSprite;
+	private Sprite cannotMoveSprite;
+	
 	private List<Sprite> boxSprites;
 	private boolean mBotIsMoving = false;
+	private StringBuilder botFlipString = new StringBuilder();
+	
+	//store current in game menu child
+	private MenuScene mMenu = null;
 	
 	/*
 	 * 	sprites
@@ -55,16 +67,27 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 	protected BitmapTextureAtlas mTargetBMP;
 	protected ITextureRegion mTargetTR;
 	
+	protected BitmapTextureAtlas mCanMoveBMP;
+	protected ITextureRegion mCanMoveTR;
+	
+	protected BitmapTextureAtlas mCanNOTMoveBMP;
+	protected ITextureRegion mCanNOTMoveTR;
+	
 
 	/*
 	 * 	constructor
 	 */
 	public InGameScreen() {
+		//decorate background
 		super(ResourceManager.GameBackgroundImage);
 		
+		mSpriteCurrentEdge = ResourceManager.FixSizeSpriteEdge;
+		boxSprites = new ArrayList<Sprite>();
 		
-		
-		mSpriteCurrentEdge = 40;
+		createScreenResource();
+	}
+	
+	private void createScreenResource() {
 		//create resources
 		mWallBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), mSpriteCurrentEdge, mSpriteCurrentEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		mWallTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mWallBMP, ResourceManager.getActivity(), ResourceManager.WallImageName, 0, 0);
@@ -78,20 +101,36 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 		mTargetBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), mSpriteCurrentEdge, mSpriteCurrentEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		mTargetTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mTargetBMP, ResourceManager.getActivity(), ResourceManager.TargetImageName, 0, 0);
 		
+		mCanMoveBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), mSpriteCurrentEdge, mSpriteCurrentEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		mCanMoveTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mCanMoveBMP, ResourceManager.getActivity(), ResourceManager.CanmoveImage, 0, 0);
 		
-		boxSprites = new ArrayList<Sprite>();
-		
-		//TODO to move to Scene Manager
-		LevelDetailEntity curLevel = new LevelDetailEntity();
-		curLevel.setPackId(1);
-		curLevel.setLevelNum(4);
-		
-		LevelDetailEntity entity = GameManager.getInstance().getNextLevel(curLevel);
-		SetCurrentLevel(entity);
+		mCanNOTMoveBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), mSpriteCurrentEdge, mSpriteCurrentEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		mCanNOTMoveTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mCanNOTMoveBMP, ResourceManager.getActivity(), ResourceManager.CannotMoveImage, 0, 0);
+	
+		mWallBMP.load();
+		mBotBMP.load();
+		mBoxBMP.load();
+		mTargetBMP.load();
+		mCanMoveBMP.load();
+		mCanNOTMoveBMP.load();
 	}
 	
-	public void SetCurrentLevel(LevelDetailEntity entity) { 
+	/*
+	 * 	getters and setters
+	 */
+	public void setMenu(MenuScene pMenu) {
+		this.mMenu = pMenu;
+	}
+	
+	public MenuScene getMenu() {
+		return this.mMenu;
+	}
+	//end
+	
+	public void setCurrentLevel(LevelDetailEntity entity) { 
 		this.mCurrentLevel = entity;
+		if (entity == null) 
+			return;
 		
 		//calculate scale factor
 		mMazeChars = GameManager.getInstance().getMazeChars(entity.getContent());
@@ -99,7 +138,7 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 			Log.e(TAG, "Level content is null");
 		}
 		else {
-			int width = mMazeChars.get(0).length();
+			int width = GameManager.getInstance().getMazeWidth(mMazeChars);
 			mSpriteScaleFactor = ResourceManager.getInstance().cameraWidth / (width * mSpriteCurrentEdge);
 			
 			//update resize currentEdge
@@ -126,21 +165,20 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 				
 				switch (ch) {
 					case GameManager.LEVEL_WALL_CHAR:
-						mWallBMP.load();
+						//mWallBMP.load();
 						tmpSprite = new Sprite(0, 0, mWallTR, ResourceManager.getEngine().getVertexBufferObjectManager());
 						break;
 						
 					case GameManager.LEVEL_BOT_CHAR:
-						mBotBMP.load();
+						//mBotBMP.load();
 						botSprite = new Sprite(0, 0, mBotTR, ResourceManager.getEngine().getVertexBufferObjectManager());
 						botSprite.setZIndex(2);
-						
 						addSpriteToScene(botSprite, col, revertR);
 						
 						break;
 						
 					case GameManager.LEVEL_BOX_CHAR:
-						mBoxBMP.load();
+						//mBoxBMP.load();
 						tmpSprite = new Sprite(0, 0, mBoxTR, ResourceManager.getEngine().getVertexBufferObjectManager());
 						tmpSprite.setZIndex(2);
 						boxSprites.add(tmpSprite);
@@ -153,7 +191,7 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 						break;
 						
 					case GameManager.LEVEL_BOX_ON_TARGET:
-						mBoxBMP.load();
+						//mBoxBMP.load();
 						mTargetBMP.load();
 						
 						tmpSprite = new Sprite(0,  0,  mTargetTR, ResourceManager.getEngine().getVertexBufferObjectManager());
@@ -185,16 +223,12 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 		this.setOnSceneTouchListener(this);
 	}
 	
-	private void addSpriteToScene(Sprite sprite, int col, int row) {
+	private void addSpriteToScene(IEntity sprite, int col, int row) {
 		sprite.setScale(mSpriteScaleFactor);
 		float pX = (sprite.getWidth() * 0.5f + sprite.getWidth() * col) * mSpriteScaleFactor;
 		float pY = (sprite.getHeight() * 0.5f + sprite.getHeight() * row) * mSpriteScaleFactor;
 		sprite.setPosition(pX, pY);
 		this.attachChild(sprite);
-	}
-	
-	public void createMenuGUI() {
-		this.setChildScene(new InGameMenu(ResourceManager.getInstance().camera));
 	}
 	
 	@Override
@@ -203,9 +237,9 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 		super.onLoadScene();
 		
 		//build gui
-		createGameGUI();
+		setCurrentLevel(GameManager.getInstance().getCurrentLevel());
 		
-		createMenuGUI();
+		createGameGUI();
 	}
 
 	@Override
@@ -331,12 +365,21 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 	 */
 	@Override
 	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
-		if (mBotIsMoving)  {
-			Log.i(TAG, "touch: bot is moving");
-			return false;
-		}
 		
 		if (pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+			//if there is popup menu return
+			Log.i(TAG, "on scene touch");
+			
+			if (SceneManager.getInstance().getCurrentMenu() == CurrentMenu.PauseMenu) {
+				SceneManager.getInstance().hidePauseMenu();
+				return false;
+			}
+			
+			if (mBotIsMoving)  {
+				Log.i(TAG, "touch: bot is moving");
+				return false;
+			}
+			
 	        final float touchX = pSceneTouchEvent.getX();
 	        final float touchY = pSceneTouchEvent.getY();
 	        
@@ -359,6 +402,12 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 		        
 		        Log.i(TAG, "move: " + pathString);
 		        moveBot(pathString, new float[] {botX, botY});
+		        if (pathString == null || pathString.length() == 0) {
+		        	showMoveSprite(false, touchPos[1], mMazeChars.size() - 1 - touchPos[0]);
+		        }
+		        else if (pathString != GameManager.PATH_OUTBOUND) {
+		        	showMoveSprite(true, touchPos[1], mMazeChars.size() - 1 - touchPos[0]);
+		        }
 	        }
 	        
 	        return true;
@@ -398,7 +447,7 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 		mMazeChars.set(pos[0], tmpBuilder.toString());
 	}
 	
-	private void moveTheBox(Sprite box, char moveChar) {
+	private void moveTheBox(final Sprite box, final char moveChar) {
 		
 		float dx = 0f, dy = 0f;
 		
@@ -427,6 +476,14 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 					@Override
 					public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
 						// TODO Auto-generated method stub
+						switch (moveChar) {
+						case GameManager.BOT_MOVE_LEFT:
+							botSprite.setFlippedHorizontal(true);
+							break;
+						case GameManager.BOT_MOVE_RIGHT:
+							botSprite.setFlippedHorizontal(false);
+							break;
+						}
 						mBotIsMoving = true;
 					}
 					
@@ -434,6 +491,13 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 					public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
 						// TODO Auto-generated method stub
 						mBotIsMoving = false;
+						/*
+						ResourceManager.getEngine().runOnUpdateThread(new Runnable(){
+							@Override
+							public void run() {
+								botSprite.clearEntityModifiers();
+							}
+						});*/
 					}
 				});
 		botSprite.registerEntityModifier(moveForBot);
@@ -458,6 +522,13 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 						if (GameManager.getInstance().checkGameWin(mMazeChars)) {
 							handleGameWin();
 						}
+						/*
+						ResourceManager.getEngine().runOnUpdateThread(new Runnable(){
+							@Override
+							public void run() {
+								box.clearEntityModifiers();
+							}
+						});*/
 					}
 				});
 		box.registerEntityModifier(moveForTheBox);
@@ -474,24 +545,46 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 		Path path = buildPath(pathString, botScenePos);
 		
 		clearBotEntityModifier();
-    	PathModifier move = new PathModifier(pathString.length() * GameManager.MOVE_UNIT_DURATION, path, new IEntityModifierListener(){
+		PathModifier move =  new PathModifier(pathString.length() * GameManager.MOVE_UNIT_DURATION, path, null, 
+				new IPathModifierListener(){
 
-			@Override
-			public void onModifierStarted(IModifier<IEntity> pModifier,
-					IEntity pItem) {
-				// TODO Auto-generated method stub
-                mBotIsMoving = true;
-                Log.i(TAG, "bot runs");
-			}
+					@Override
+					public void onPathStarted(PathModifier pPathModifier,
+							IEntity pEntity) {
+			            mBotIsMoving = true;
+			            Log.i(TAG, "bot runs");
+					}
 
-			@Override
-			public void onModifierFinished(IModifier<IEntity> pModifier,
-					IEntity pItem) {
-				// TODO Auto-generated method stub
-                mBotIsMoving = false;
-                Log.i(TAG, "bot stop");
-			}
-    	});
+					@Override
+					public void onPathWaypointStarted(
+							PathModifier pPathModifier, IEntity pEntity,
+							int pWaypointIndex) {
+						
+						char tmp = botFlipString.toString().charAt(pWaypointIndex);
+						switch (tmp) {
+						case GameManager.BOT_MOVE_LEFT:
+							botSprite.setFlippedHorizontal(true);
+							break;
+						case GameManager.BOT_MOVE_RIGHT:
+							botSprite.setFlippedHorizontal(false);
+							break;
+						}
+					}
+
+					@Override
+					public void onPathWaypointFinished(
+							PathModifier pPathModifier, IEntity pEntity,
+							int pWaypointIndex) {
+						
+					}
+
+					@Override
+					public void onPathFinished(PathModifier pPathModifier,
+							IEntity pEntity) {
+			            mBotIsMoving = false;
+			            Log.i(TAG, "bot stop");
+					}
+		}, EaseLinear.getInstance());
 
 		botSprite.registerEntityModifier(move);
 		
@@ -506,7 +599,8 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 	private Path buildPath(String pathString, float[] botScenePos) {
 		//need at least 2 way points
 		Path path = new Path(pathString.length() + 1).to(botScenePos[0], botScenePos[1]);
-
+		botFlipString = new StringBuilder(pathString);
+			
 		for (char ch : pathString.toCharArray()) {
 			switch (ch) {
 				case GameManager.BOT_MOVE_LEFT:
@@ -529,4 +623,54 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 		return path;
 	}
 	
+	private boolean showMoveSprite(boolean canMove, final int row, final int col) {
+		Sprite sprite = null;
+		
+		if (canMove) {
+			canMoveSprite = new Sprite(0, 0, mCanMoveTR, ResourceManager.getEngine().getVertexBufferObjectManager());
+			canMoveSprite.setZIndex(2);
+			addSpriteToScene(canMoveSprite, row, col);
+			sprite = canMoveSprite;
+		}
+		else {
+			cannotMoveSprite = new Sprite(0, 0, mCanNOTMoveTR, ResourceManager.getEngine().getVertexBufferObjectManager());
+			cannotMoveSprite.setZIndex(2);
+			addSpriteToScene(cannotMoveSprite, row, col);
+			sprite = cannotMoveSprite;
+		}
+		
+		sprite.clearEntityModifiers();
+		DelayModifier delay = new DelayModifier(0.5f, new IEntityModifierListener() {
+			
+			@Override
+			public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
+				// TODO Auto-generated method stub
+				//addSpriteToScene(pItem, row, col);
+			}
+			
+			@Override
+			public void onModifierFinished(IModifier<IEntity> pModifier, final IEntity pItem) {
+				ResourceManager.getEngine().runOnUpdateThread(new Runnable(){
+					
+					@Override
+					public void run() {
+						if (cannotMoveSprite != null) {
+							cannotMoveSprite.detachSelf();
+							cannotMoveSprite = null;
+						}
+						
+						if (canMoveSprite != null) {
+							canMoveSprite.detachSelf();
+							canMoveSprite = null;
+						}
+
+					}
+				});
+			}
+		});
+		sprite.registerEntityModifier(delay);
+		
+		
+		return false;
+	}
 }

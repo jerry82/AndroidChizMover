@@ -23,6 +23,8 @@ import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegion
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.ui.activity.BaseGameActivity;
 
+import android.view.KeyEvent;
+
 
 public class MainActivity extends BaseGameActivity {
 
@@ -75,8 +77,6 @@ public class MainActivity extends BaseGameActivity {
 		
 		SceneManager.getInstance().showScene(new SplashScreen());
 		
-		GameDB.getInstance().getLevelDetail(1, 1);
-		
 		pOnCreateSceneCallback.onCreateSceneFinished(getEngine().getScene());
 	}
 
@@ -92,5 +92,15 @@ public class MainActivity extends BaseGameActivity {
 	protected void onDestroy() {
 		super.onDestroy();
 		System.exit(0);
+	}
+	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) 
+	{  
+	    if (keyCode == KeyEvent.KEYCODE_BACK)
+	    {
+	        SceneManager.getInstance().getCurrentScene().onBackKeyPressed();
+	    }
+	    return false; 
 	}
 }
