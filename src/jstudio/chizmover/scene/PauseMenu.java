@@ -104,13 +104,14 @@ public class PauseMenu extends MenuScene implements IOnMenuItemClickListener  {
 	    //set position
 	    float width = this.getCamera().getWidth();
 	    float height = this.getCamera().getHeight();
-	    float pad = width / 10;
+	    float pad = 33f;
 	    
 	    menuBgMI.setPosition(width / 2, height / 2);
-	    restartMI.setPosition(menuBgMI.getX() - pad / 2, menuBgMI.getY());
-	    menuMI.setPosition(restartMI.getX() - restartMI.getWidth(), menuBgMI.getY());
-	    radioOnMI.setPosition(menuBgMI.getX() + pad / 2, menuBgMI.getY());
-	    helpMI.setPosition(radioOnMI.getX() + radioOnMI.getWidth(), menuBgMI.getY());
+	    
+	    restartMI.setPosition(menuBgMI.getX() - pad, menuBgMI.getY());
+	    menuMI.setPosition(menuBgMI.getX() - 3 * pad, menuBgMI.getY());
+	    radioOnMI.setPosition(menuBgMI.getX() + pad, menuBgMI.getY());
+	    helpMI.setPosition(menuBgMI.getX() + 3 * pad, menuBgMI.getY());
 	    
 	    this.setOnMenuItemClickListener(this);
 	}

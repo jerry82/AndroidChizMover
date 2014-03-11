@@ -3,6 +3,8 @@ package jstudio.chizmover.managers;
 import java.util.Arrays;
 import java.util.List;
 
+import android.util.Log;
+
 import jstudio.chizmover.data.DBHelper;
 import jstudio.chizmover.data.GameDB;
 import jstudio.chizmover.data.LevelDetailEntity;
@@ -27,9 +29,11 @@ public class GameManager {
 	public static final String PATH_OUTBOUND = "OUTBOUND";
 	public static final float MOVE_UNIT_DURATION = 0.15F;
 	
+	public int SpriteCurrentEdge;
+	public float SpriteScaleFactor;
 	
+	private List<String> mMazeChars;
 	private LevelDetailEntity mCurrentLevel = null;
-	
 	private int[][] mIntegerMaze;
 	private PathFinder mPathFinder;
 	
@@ -44,6 +48,8 @@ public class GameManager {
 		}
 		
 		mPathFinder = new PathFinder();
+		
+		SpriteCurrentEdge = ResourceManager.FixSizeSpriteEdge;
 	}
 	
 	public static GameManager getInstance() {
@@ -82,28 +88,38 @@ public class GameManager {
 		return entity;
 	}
 	
-	public List<String> getMazeChars(String content) {
-		
+	public void getMazeChars(String content) {
 		if (content != null && content.length() > 0) {
-			List<String> mazeChars = Arrays.asList(content.split(LEVEL_LINE_SEPARATOR));
-			return mazeChars;
+			this.mMazeChars = Arrays.asList(content.split(LEVEL_LINE_SEPARATOR));
 		}
-		
-		return null;
 	}
 	
-	public void initMaze(List<String> mazeChars) {
-		if (mazeChars == null || mazeChars.size() == 0)
+	public void setupRatio(int width) {
+		//reset SpriteCurrentEdge to fix value every level
+		SpriteCurrentEdge = ResourceManager.FixSizeSpriteEdge;
+		
+		SpriteScaleFactor = ResourceManager.getInstance().cameraWidth / (width * SpriteCurrentEdge);
+		
+		//update resize currentEdge
+		SpriteCurrentEdge *= SpriteScaleFactor;
+		
+		Log.i(TAG, String.format("width:%1$d edge:%2$d scale:%3$f", width, 
+				GameManager.getInstance().SpriteCurrentEdge,
+				GameManager.getInstance().SpriteScaleFactor));
+	}
+	
+	public void initMaze() {
+		if (mMazeChars == null || mMazeChars.size() == 0)
 			return;
 		
-		int row = mazeChars.size();
-		int col = getMazeWidth(mazeChars);
+		int row = mMazeChars.size();
+		int col = getMazeWidth();
 		
 		
 		mIntegerMaze = new int[row][col];
 		
 		for (int i = 0; i < row; i++) {
-			String line = mazeChars.get(i);
+			String line = mMazeChars.get(i);
 			for (int j = 0; j < line.length(); j++) {
 				char tmpChar = line.charAt(j);
 				int tmpNum = -1;
@@ -121,10 +137,10 @@ public class GameManager {
 	}
 
 	//return the max width
-	public int getMazeWidth(List<String> mazeChars) {
+	public int getMazeWidth() {
 		int result = 0;
 		
-		for (String line : mazeChars) {
+		for (String line : this.mMazeChars) {
 			if (result < line.length()) 
 				result = line.length();
 		}
@@ -137,8 +153,8 @@ public class GameManager {
 		return path;
 	}
 	
-	public boolean checkGameWin(List<String> mazeChars) {
-		for (String line : mazeChars) {
+	public boolean checkGameWin() {
+		for (String line : mMazeChars) {
 			//there is still box out there
 			if (line.indexOf(LEVEL_BOX_CHAR) > -1)
 				return false;
@@ -159,5 +175,76 @@ public class GameManager {
 		}
 		 
 		return this.mCurrentLevel;
+	}
+
+	public int[] getMatrixPos(float[] scenePos) {
+		int[] result = new int[2];
+		
+		result[1] = (int) (scenePos[0] / SpriteCurrentEdge);
+		result[0] = (int) Math.floor(scenePos[1] / SpriteCurrentEdge);
+		
+		result[0] = mMazeChars.size() - result[0] - 1;
+		
+		return result;
+	}
+
+	//idx0: row, idx1: col
+	public float[] getScenePos(int[] matrixPos) {
+		float[] result = new float[2];
+		
+		result[0] = matrixPos[1] * SpriteCurrentEdge + SpriteCurrentEdge / 2;
+		result[1] = (this.mMazeChars.size() - matrixPos[0]) * SpriteCurrentEdge - 
+				SpriteCurrentEdge / 2;
+		
+		return result;
+	}
+	
+	public boolean boxHitWall(int[] nextPos) {
+		int row = nextPos[0];
+		int col = nextPos[1];
+		
+		return ((mMazeChars.get(row).charAt(col) == GameManager.LEVEL_WALL_CHAR) || 
+				(mMazeChars.get(row).charAt(col) == GameManager.LEVEL_BOX_CHAR) || 
+				(mMazeChars.get(row).charAt(col) == GameManager.LEVEL_BOX_ON_TARGET));
+	}
+	
+	public void updateMazeWithNewBoxPos(int[] prevPos, int[] curPos){
+		
+		Log.i(TAG, String.format("prev: %1$d-%2$d", prevPos[0], prevPos[1]));
+		Log.i(TAG, String.format("cur: %1$d-%2$d", curPos[0], curPos[1]));
+		
+		char prevChar = mMazeChars.get(prevPos[0]).charAt(prevPos[1]);
+		char curChar = mMazeChars.get(curPos[0]).charAt(curPos[1]);
+		
+		if (prevChar == GameManager.LEVEL_BOX_ON_TARGET) 
+			prevChar = GameManager.LEVEL_TARGET;
+		else 
+			prevChar = GameManager.LEVEL_SPACE;
+
+		if (curChar == GameManager.LEVEL_TARGET) 
+			curChar = GameManager.LEVEL_BOX_ON_TARGET;
+		else 
+			curChar = GameManager.LEVEL_BOX_CHAR;
+		
+		//replace mutable string
+		updateMazeChars(prevPos, prevChar);
+		updateMazeChars(curPos, curChar);
+	}
+	
+	//after the boxes moved, the mazechars is updated accordingly
+	//string within mazeChars is replaced by this function
+	public void updateMazeChars(int[] pos, char newChar) {
+		String tmp = mMazeChars.get(pos[0]);
+		StringBuilder tmpBuilder = new StringBuilder(tmp);
+		tmpBuilder.setCharAt(pos[1], newChar);
+		mMazeChars.set(pos[0], tmpBuilder.toString());
+	}
+	
+	public void setMaze(List<String> mazeChars) {
+		this.mMazeChars = mazeChars;
+	}
+	
+	public List<String> getMaze() {
+		return this.mMazeChars;
 	}
 }
