@@ -15,7 +15,10 @@ import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.menu.MenuScene;
 import org.andengine.entity.sprite.Sprite;
+import org.andengine.entity.text.Text;
 import org.andengine.input.touch.TouchEvent;
+import org.andengine.opengl.font.Font;
+import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
@@ -23,6 +26,7 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.util.modifier.IModifier;
 import org.andengine.util.modifier.ease.EaseLinear;
 
+import android.graphics.Color;
 import android.util.Log;
 
 import jstudio.chizmover.data.LevelDetailEntity;
@@ -76,7 +80,10 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 	
 	protected BitmapTextureAtlas mCanNOTMoveBMP;
 	protected ITextureRegion mCanNOTMoveTR;
+		
+	protected Text LevelText;
 	
+	private Font mFont;
 
 	/*
 	 * 	constructor
@@ -111,7 +118,7 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 		
 		mCanNOTMoveBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), tmpEdge, tmpEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		mCanNOTMoveTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mCanNOTMoveBMP, ResourceManager.getActivity(), ResourceManager.CannotMoveImage, 0, 0);
-	
+
 		mWallBMP.load();
 		mBotBMP.load();
 		mBoxBMP.load();
@@ -146,7 +153,24 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 			int width = GameManager.getInstance().getMazeWidth();
 			
 			GameManager.getInstance().setupRatio(width);
+			
+			//create text
+			createGameText(String.format("%1$s-%2$s", entity.getPackId(), entity.getLevelNum()));
 		}
+	}
+	
+	public void createGameText(String text) {
+		if (mFont == null) {
+			mFont = ResourceManager.getInstance().getGameFont(43);
+			mFont.load();
+		}
+
+		LevelText = new Text(0, 0, 
+				mFont, text, ResourceManager.getEngine().getVertexBufferObjectManager());
+		LevelText.setPosition(ResourceManager.getInstance().cameraWidth / 2, 
+				ResourceManager.getInstance().cameraHeight - 30);
+		this.attachChild(LevelText);
+		
 	}
 	
 	public void createGameGUI() {
@@ -242,6 +266,15 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 	public void onUnloadScene() {
 		// TODO Auto-generated method stub
 		super.onUnloadScene();
+		
+		mFont.unload();
+		mWallBMP.unload();
+		mBotBMP.unload();
+		mBoxBMP.unload();
+		mTargetBMP.unload();
+		mCanMoveBMP.unload();
+		mCanNOTMoveBMP.unload();
+		
 	}
 
 	@Override

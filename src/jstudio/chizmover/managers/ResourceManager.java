@@ -12,6 +12,8 @@ import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.region.TextureRegion;
 
+import android.graphics.Color;
+
 import jstudio.chizmover.data.*;
 public class ResourceManager {
 
@@ -68,7 +70,7 @@ public class ResourceManager {
 	public static final int FixSizeSpriteEdge = 40;
 	public static final int FixSizeBtnEdge = 50;
 	
-	public static Font gameFont;
+	public static Font GameFont;
 	
 	/*
 	 * 	constructor and setup
@@ -116,13 +118,15 @@ public class ResourceManager {
 		}
 	}
 	
-	private void loadFont() {
-		
-	}
+	public Font getGameFont(int size) {
+		Font tmpFont = FontFactory.createFromAsset(ResourceManager.getActivity().getFontManager(), ResourceManager.getActivity().getTextureManager(), 
+				256, 256, ResourceManager.getActivity().getAssets(),
+			    "font/angrybirds-regular.ttf", size, true, Color.WHITE);
+		return tmpFont;
+	}	
+	
 	
 	private void loadSounds() {
-		if (gameFont == null) {
-			FontFactory.setAssetBasePath("font/");
-		}
+
 	}
 }

@@ -101,7 +101,7 @@ public class GameManager {
 		SpriteScaleFactor = ResourceManager.getInstance().cameraWidth / (width * SpriteCurrentEdge);
 		
 		//update resize currentEdge
-		SpriteCurrentEdge *= SpriteScaleFactor;
+		SpriteCurrentEdge = (int)Math.ceil(SpriteCurrentEdge * SpriteScaleFactor);
 		
 		Log.i(TAG, String.format("width:%1$d edge:%2$d scale:%3$f", width, 
 				GameManager.getInstance().SpriteCurrentEdge,

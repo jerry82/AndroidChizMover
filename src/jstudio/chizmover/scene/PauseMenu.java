@@ -1,6 +1,7 @@
 package jstudio.chizmover.scene;
 
 import jstudio.chizmover.managers.ResourceManager;
+import jstudio.chizmover.managers.SceneManager;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.scene.background.Background;
@@ -136,6 +137,7 @@ public class PauseMenu extends MenuScene implements IOnMenuItemClickListener  {
 	        case ResourceManager.MenuID:
 	        	Log.i(TAG, "click menu");
 	            //action
+	        	SceneManager.getInstance().showScene(new EpisodeScreen());
 	            return true;
 	            
 	        case ResourceManager.RestartID:
