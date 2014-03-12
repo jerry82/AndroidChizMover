@@ -161,7 +161,7 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 	
 	public void createGameText(String text) {
 		if (mFont == null) {
-			mFont = ResourceManager.getInstance().getGameFont(43);
+			mFont = ResourceManager.getInstance().getGameFont(43, Color.WHITE);
 			mFont.load();
 		}
 

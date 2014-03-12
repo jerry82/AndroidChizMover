@@ -5,6 +5,7 @@ import jstudio.chizmover.runtime.MainActivity;
 import org.andengine.engine.Engine;
 import org.andengine.engine.LimitedFPSEngine;
 import org.andengine.engine.camera.Camera;
+import org.andengine.entity.text.Text;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.TextureOptions;
@@ -39,6 +40,8 @@ public class ResourceManager {
 	public static final String TargetImageName = "spot40.png";
 	public static final String CanmoveImage = "canMove40.png";
 	public static final String CannotMoveImage = "cannotMove40.png";
+	public static final String LockImage = "lock.png";
+	public static final String TransparentBar = "bar.png";
 	
 	public static final String PauseImageName = "pause50.png";
 	public static final int PauseID = 0;
@@ -118,13 +121,12 @@ public class ResourceManager {
 		}
 	}
 	
-	public Font getGameFont(int size) {
+	public Font getGameFont(int size, int color) {
 		Font tmpFont = FontFactory.createFromAsset(ResourceManager.getActivity().getFontManager(), ResourceManager.getActivity().getTextureManager(), 
 				256, 256, ResourceManager.getActivity().getAssets(),
-			    "font/angrybirds-regular.ttf", size, true, Color.WHITE);
+			    "font/angrybirds-regular.ttf", size, true, color);
 		return tmpFont;
-	}	
-	
+	}
 	
 	private void loadSounds() {
 

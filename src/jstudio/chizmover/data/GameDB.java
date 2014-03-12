@@ -109,9 +109,9 @@ public final class GameDB {
 		try {
 			this.openDB();
 			
-			String sql = "SELECT id, description, current_level, lock, custom.total AS total FROM pack AS p join " +
+			String sql = "SELECT _id, description, current_level, lock, custom.total AS total FROM pack AS p join " +
 			"(SELECT packId, COUNT(packId) AS total FROM level_detail GROUP BY packid) AS " +
-			"custom ON p.id = custom.packId";
+			"custom ON p._id = custom.packId";
 			
 			Cursor cursor = mDB.rawQuery(sql, null);
 			PackEntity pack = null;
@@ -121,7 +121,7 @@ public final class GameDB {
 					pack.setId(cursor.getInt(0));
 					pack.setDescription(cursor.getString(1));
 					pack.setCurrentLevel(cursor.getInt(2));
-					//0: unlock 1: lock
+					//0: unlock - 1: lock
 					pack.setLock(cursor.getInt(3) == 0);
 					pack.setNumberOfLevel(cursor.getInt(4));
 					

@@ -52,8 +52,7 @@ public abstract class ManagedScene extends Scene {
 	protected void onLoadScene() {
 		mBackgroundTextureAtlas.load();
 		
-		if (this instanceof SplashScreen || 
-				this instanceof EpisodeScreen) {
+		if (this instanceof SplashScreen) {
 			mBackgroundSprite = new Sprite(0, 0, mBackgroundTextureRegion, ResourceManager.getEngine().getVertexBufferObjectManager())
 			{
 			    @Override
@@ -81,7 +80,8 @@ public abstract class ManagedScene extends Scene {
 		mBackgroundSprite.setHeight(mHeight);
 		mBackgroundSprite.setPosition(mWidth * 0.5f, mHeight * 0.5f);
 		
-		this.attachChild(mBackgroundSprite);
+		if (!(this instanceof EpisodeScreen))
+			this.attachChild(mBackgroundSprite);
 	}
 	
 	protected void onUnloadScene() {

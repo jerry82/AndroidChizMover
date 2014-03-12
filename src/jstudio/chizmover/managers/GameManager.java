@@ -8,6 +8,7 @@ import android.util.Log;
 import jstudio.chizmover.data.DBHelper;
 import jstudio.chizmover.data.GameDB;
 import jstudio.chizmover.data.LevelDetailEntity;
+import jstudio.chizmover.data.PackEntity;
 
 public class GameManager {
 	
@@ -57,6 +58,9 @@ public class GameManager {
 	}
 	//end
 	
+	/*	
+	 * 	handle game data
+	 */
 	public LevelDetailEntity getPrevLevel() {
 		LevelDetailEntity entity = null;
 		
@@ -94,6 +98,12 @@ public class GameManager {
 		}
 	}
 	
+	public List<PackEntity> getAllEpisodes() {
+		return GameDB.getInstance().getAllEpisodes();
+	}
+	/*
+	 * 	handle sprites' sizes
+	 */
 	public void setupRatio(int width) {
 		//reset SpriteCurrentEdge to fix value every level
 		SpriteCurrentEdge = ResourceManager.FixSizeSpriteEdge;
@@ -108,6 +118,10 @@ public class GameManager {
 				GameManager.getInstance().SpriteScaleFactor));
 	}
 	
+	
+	/*
+	 * 	handle game logic
+	 */
 	public void initMaze() {
 		if (mMazeChars == null || mMazeChars.size() == 0)
 			return;
@@ -240,6 +254,9 @@ public class GameManager {
 		mMazeChars.set(pos[0], tmpBuilder.toString());
 	}
 	
+	/*	
+	 * 	getters and setters
+	 */
 	public void setMaze(List<String> mazeChars) {
 		this.mMazeChars = mazeChars;
 	}
