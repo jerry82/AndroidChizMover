@@ -1,5 +1,6 @@
 package jstudio.chizmover.scene;
 
+import jstudio.chizmover.managers.CurrentMenu;
 import jstudio.chizmover.managers.ResourceManager;
 import jstudio.chizmover.managers.SceneManager;
 
@@ -25,30 +26,31 @@ public class PauseMenu extends MenuScene implements IOnMenuItemClickListener  {
 	private static final String TAG = "PauseMenu";
 	
 	//background img
-	private BitmapTextureAtlas mMenuBgBMP;
-	private ITextureRegion mMenuBgTR;
+	protected BitmapTextureAtlas mMenuBgBMP;
+	protected ITextureRegion mMenuBgTR;
 	
 	//items
-	private BitmapTextureAtlas mMenuBMP;
-	private ITextureRegion mMenuTR;
+	protected BitmapTextureAtlas mMenuBMP;
+	protected ITextureRegion mMenuTR;
 	
-	private BitmapTextureAtlas mRestartBMP;
-	private ITextureRegion mRestartTR;
+	protected BitmapTextureAtlas mRestartBMP;
+	protected ITextureRegion mRestartTR;
 	
-	private BitmapTextureAtlas mRadioOnBMP;
-	private ITextureRegion mRadioOnTR;
+	protected BitmapTextureAtlas mRadioOnBMP;
+	protected ITextureRegion mRadioOnTR;
 	
-	private BitmapTextureAtlas mHelpBMP;
-	private ITextureRegion mHelpTR;
+	protected BitmapTextureAtlas mHelpBMP;
+	protected ITextureRegion mHelpTR;
 	
+	protected BitmapTextureAtlas mNextBMP;
+	protected ITextureRegion mNextTR;
 	
 	public PauseMenu(Camera camera) {
 		super(camera);
-		
 		onLoad();
 	}
 	
-	public void onLoad() {
+	protected void loadResource() {
 		mMenuBgBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), 280, 90, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		mMenuBgTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mMenuBgBMP, ResourceManager.getActivity(), ResourceManager.MenuBgImage, 0, 0);
 		
@@ -63,14 +65,20 @@ public class PauseMenu extends MenuScene implements IOnMenuItemClickListener  {
 		
 		mHelpBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), ResourceManager.FixSizeBtnEdge, ResourceManager.FixSizeBtnEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		mHelpTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mHelpBMP, ResourceManager.getActivity(), ResourceManager.HelpImage, 0, 0);
-	
 		
+		mNextBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), ResourceManager.FixSizeBtnEdge, ResourceManager.FixSizeBtnEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		mNextTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mNextBMP, ResourceManager.getActivity(), ResourceManager.NextImageName, 0, 0);
 		
 		mMenuBgBMP.load();
 		mMenuBMP.load();
 		mRestartBMP.load();
 		mRadioOnBMP.load();
 		mHelpBMP.load();
+		mNextBMP.load();
+	}
+	
+	public void onLoad() {
+		loadResource();
 		
 		final IMenuItem menuBgMI = new ScaleMenuItemDecorator(
 				new SpriteMenuItem(-1, mMenuBgTR, ResourceManager.getEngine().getVertexBufferObjectManager()), 
@@ -78,22 +86,22 @@ public class PauseMenu extends MenuScene implements IOnMenuItemClickListener  {
 		
 		final IMenuItem menuMI = new ScaleMenuItemDecorator(
 				new SpriteMenuItem(ResourceManager.MenuID, mMenuTR, ResourceManager.getEngine().getVertexBufferObjectManager()), 
-				1.1f , 1f);
+				1.2f , 1f);
 		
 		final IMenuItem restartMI = new ScaleMenuItemDecorator(
 				new SpriteMenuItem(ResourceManager.RestartID, mRestartTR, ResourceManager.getEngine().getVertexBufferObjectManager()), 
-				1.1f , 1f);
+				1.2f , 1f);
 		
 		final IMenuItem radioOnMI = new ScaleMenuItemDecorator(
 				new SpriteMenuItem(ResourceManager.RadioOnID, mRadioOnTR, ResourceManager.getEngine().getVertexBufferObjectManager()), 
-				1.1f , 1f);
+				1.2f , 1f);
 		
 		final IMenuItem helpMI = new ScaleMenuItemDecorator(
 				new SpriteMenuItem(ResourceManager.HelpID, mHelpTR, ResourceManager.getEngine().getVertexBufferObjectManager()), 
-				1.1f , 1f);
+				1.2f , 1f);
 		
 		
-	    this.addMenuItem(menuBgMI);
+	    this.attachChild(menuBgMI);
 	    this.addMenuItem(menuMI);
 	    this.addMenuItem(restartMI);
 	    this.addMenuItem(radioOnMI);
@@ -123,6 +131,7 @@ public class PauseMenu extends MenuScene implements IOnMenuItemClickListener  {
 		mRestartBMP.unload();
 		mRadioOnBMP.unload();
 		mHelpBMP.unload();
+		mNextBMP.unload();
 		
 		this.detachChildren();
 		this.detachSelf();
@@ -132,31 +141,44 @@ public class PauseMenu extends MenuScene implements IOnMenuItemClickListener  {
 	public boolean onMenuItemClicked(MenuScene pMenuScene, IMenuItem pMenuItem,
 			float pMenuItemLocalX, float pMenuItemLocalY) {
 		// TODO Auto-generated method stub
-	    switch(pMenuItem.getID())
-	    {
-	        case ResourceManager.MenuID:
-	        	Log.i(TAG, "click menu");
-	            //action
-	        	SceneManager.getInstance().showScene(new EpisodeScreen());
-	            return true;
-	            
-	        case ResourceManager.RestartID:
-	        	Log.i(TAG, "click restart");
-	            //action
-	            return true;
-	        
-	        case ResourceManager.RadioOnID:
-	        	Log.i(TAG, "click radio");
-	        	return true;
-	        
-	        case ResourceManager.HelpID:
-	        	Log.i(TAG, "click help");
-	        	return true;
-	        
-	        default:
-	        	//Log.i(TAG, "click outside item");
-	            return false;
-	    }
-	}
+		if (SceneManager.getInstance().getCurrentMenu() != CurrentMenu.NoMenu) {
+		    switch(pMenuItem.getID())
+		    {
+		        case ResourceManager.MenuID:
+		        	Log.i(TAG, "click menu");
+		            //action
+		        	SceneManager.getInstance().showScene(new EpisodeScreen());
+		            return true;
+		            
+		        case ResourceManager.RestartID:
+		        	Log.i(TAG, "click restart");
+		        	SceneManager.getInstance().showScene(new InGameScreen());
+		            //action
+		            return true;
+		        
+		        case ResourceManager.RadioOnID:
+		        	Log.i(TAG, "click radio");
+		        	if (ResourceManager.getInstance().gameSound.isPlaying())
+		        		ResourceManager.getInstance().gameSound.pause();
+		        	else 
+		        		ResourceManager.getInstance().gameSound.play();
+		        	return true;
+		        
+		        case ResourceManager.HelpID:
+		        	Log.i(TAG, "click help");
+		        	SceneManager.getInstance().showInstructionMenu();
+		        	return true;
+		        
+		        case ResourceManager.NextID:
+		        	Log.i(TAG, "click next");
+		        	SceneManager.getInstance().handleNextBtnClick();
+		        	return true;
 
+		        default:
+		        	//Log.i(TAG, "click outside item");
+		            return false;
+		    }
+		}
+		return false;
+	}
 }

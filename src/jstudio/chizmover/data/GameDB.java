@@ -62,10 +62,12 @@ public final class GameDB {
 		{ LD_ID, LD_CONTENT, LD_PACKID, LD_LEVELNUM, LD_DIFFICULTY};
 	
 	//table pack fields
-	private static final String P_ID = "id";
+	private static final String P_ID = "_id";
 	private static final String P_DESCRIPTION = "description";
 	private static final String P_CURRENTLEVEL = "current_level";
 	private static final String P_LOCK = "lock";
+	private static final String[] PACK_COLUMNS = 
+		{ P_ID, P_DESCRIPTION, P_CURRENTLEVEL, P_LOCK };
 	
 	
 	/*
@@ -103,6 +105,35 @@ public final class GameDB {
 		return entity;
 	}
 	
+	public PackEntity getEpisode(int packId) {
+		PackEntity entity = null;
+		
+		try {
+			this.openDB();
+			
+			Cursor cursor = mDB.query(TABLE_PACK, PACK_COLUMNS, "_id = ?", 
+					new String[] { String.valueOf(packId) }, 
+					null, null, null);
+			
+			cursor.moveToFirst();
+			
+			if (cursor.getCount() > 0) {
+				entity = new PackEntity(cursor.getInt(0), 
+						cursor.getString(1), 
+						cursor.getInt(2),  
+						cursor.getInt(3) == 1);
+			}
+		}
+		catch (Exception ex) {
+			Log.e(TAG, "error getLevelDetail: " + ex.toString());
+		}
+		finally {
+			this.closeDB();
+		}
+
+		return entity;
+	}
+	
 	public List<PackEntity> getAllEpisodes() {
 		List<PackEntity> packs = new ArrayList<PackEntity>();
 		
@@ -121,8 +152,8 @@ public final class GameDB {
 					pack.setId(cursor.getInt(0));
 					pack.setDescription(cursor.getString(1));
 					pack.setCurrentLevel(cursor.getInt(2));
-					//0: unlock - 1: lock
-					pack.setLock(cursor.getInt(3) == 0);
+					//0: unlock-false - 1: lock-true
+					pack.setLock(cursor.getInt(3) != 0);
 					pack.setNumberOfLevel(cursor.getInt(4));
 					
 					packs.add(pack);
@@ -142,11 +173,24 @@ public final class GameDB {
 		return packs;
 	}
 	
-	//0: no, 1: last of episode, 2: very last
-	public int isLastLevel(int packId, int levelNum) {
-		int result = 0;
-		
-		return result;
+	//update currentlevel + 1
+	public void updateCompleteLevel(int packId, int curLevel) {
+		//update completed current level;
+		try {
+			this.openDB();
+			
+			ContentValues values = new ContentValues();
+			values.put(P_CURRENTLEVEL, curLevel + 1);
+			
+			mDB.update(TABLE_PACK, values, "_id = ?", new String[] { String.valueOf(packId)});
+			
+		}
+		catch (Exception ex) {
+			Log.e(TAG, "error unlockEpisode: " + ex.toString());
+		}
+		finally {
+			this.closeDB();
+		}
 	}
 	
 	public void unlockEpisode(int packId) {
@@ -154,9 +198,9 @@ public final class GameDB {
 			this.openDB();
 			
 			ContentValues values = new ContentValues();
-			values.put("lock", 0);
+			values.put(P_LOCK, 0);
 			
-			mDB.update(TABLE_PACK, values, "id = ?", new String[] { String.valueOf(packId)});
+			mDB.update(TABLE_PACK, values, "_id = ?", new String[] { String.valueOf(packId)});
 			
 		}
 		catch (Exception ex) {

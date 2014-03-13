@@ -9,6 +9,8 @@ import jstudio.chizmover.data.DBHelper;
 import jstudio.chizmover.data.GameDB;
 import jstudio.chizmover.data.LevelDetailEntity;
 import jstudio.chizmover.data.PackEntity;
+import jstudio.chizmover.scene.EndGameScreen;
+import jstudio.chizmover.scene.WinEpisodeMenu;
 
 public class GameManager {
 	
@@ -92,6 +94,10 @@ public class GameManager {
 		return entity;
 	}
 	
+	public LevelDetailEntity getLevelDetail(int packId, int levelnum) {
+		return GameDB.getInstance().getLevelDetail(packId, levelnum);
+	}
+	
 	public void getMazeChars(String content) {
 		if (content != null && content.length() > 0) {
 			this.mMazeChars = Arrays.asList(content.split(LEVEL_LINE_SEPARATOR));
@@ -101,6 +107,62 @@ public class GameManager {
 	public List<PackEntity> getAllEpisodes() {
 		return GameDB.getInstance().getAllEpisodes();
 	}
+	
+	public PackEntity getEpisode(int packId) {
+		return GameDB.getInstance().getEpisode(packId);
+	}
+		
+	/*
+	 * 	this will handle update pack table, 
+	 *  unlock new episode, show endgame screen...
+	 */
+	public void handleGameWin() {
+		int packId = mCurrentLevel.getPackId();
+		int levelNum = mCurrentLevel.getLevelNum();
+		
+		List<PackEntity> allEpisode = GameDB.getInstance().getAllEpisodes();
+		
+		if (allEpisode == null || allEpisode.size() == 0) {
+			Log.e(TAG, "allepisode is null");
+			return;
+		}
+		
+		PackEntity episode = allEpisode.get(packId - 1);
+		
+		GameDB.getInstance().updateCompleteLevel(packId, levelNum);
+		
+		if (levelNum < episode.getNumberOfLevel()) {
+			SceneManager.getInstance().showWinLevelMenu();
+		}
+		else {
+			//unlock next episode
+			if (packId < allEpisode.size()) {
+				GameDB.getInstance().unlockEpisode(packId + 1);
+				SceneManager.getInstance().showWinEpisodeMenu();
+			}
+			//game win
+			else {
+				SceneManager.getInstance().showWinGameScreen();
+			}
+		}
+	}
+	
+	/*
+	 * 	handle episode selection
+	 */
+	public void loadLevel(PackEntity pack) {
+		int curLevel = pack.getCurrentLevel();
+		int totalLevel = pack.getNumberOfLevel();
+		
+		Log.i(TAG, "current level: " + pack.getCurrentLevel());
+		//if complete all 
+		if (curLevel >= totalLevel) {
+			curLevel--;
+		}
+		
+		SceneManager.getInstance().handleEpisodeSelection(pack.getId(), curLevel);
+	}
+	
 	/*
 	 * 	handle sprites' sizes
 	 */

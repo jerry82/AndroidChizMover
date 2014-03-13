@@ -12,14 +12,15 @@ import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.region.ITextureRegion;
 
+import android.drm.DrmStore.Action;
 import android.util.Log;
 
-public class SplashScreen extends ManagedScene implements IOnSceneTouchListener{
-
-	private static final String TAG = "SplashScreen";
+public class EndGameScreen extends ManagedScene implements IOnSceneTouchListener{
 	
-	public SplashScreen() {
-		super(ResourceManager.SplashScreenImage);
+	private final String TAG = "EndGameScreen";
+	
+	public EndGameScreen() {
+		super(ResourceManager.EndGameScreenImage);
 		
 		this.setOnSceneTouchListener(this);
 	}
@@ -54,7 +55,7 @@ public class SplashScreen extends ManagedScene implements IOnSceneTouchListener{
 	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
 		// TODO Auto-generated method stub
 		if (pSceneTouchEvent.getAction() == TouchEvent.ACTION_UP) {
-			SceneManager.getInstance().showScene(new EpisodeScreen());
+			SceneManager.getInstance().showScene(new SplashScreen());
 			Log.i(TAG, "onSceneTouchEvent");
 		}
 		return true;

@@ -27,6 +27,13 @@ public class PackEntity {
 		this.mNumberOfLevel = pNumberOfLevel;
 	}
 	
+	public PackEntity(int pId, String pDescription, int pCurrentLevel, boolean pLock) {
+		this.mId = pId;
+		this.mDescription = pDescription;
+		this.mCurrentLevel = pCurrentLevel;
+		this.mLock = pLock;
+	}
+	
 	public int getId() {
 		return mId;
 	}

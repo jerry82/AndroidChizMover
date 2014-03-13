@@ -52,29 +52,7 @@ public abstract class ManagedScene extends Scene {
 	protected void onLoadScene() {
 		mBackgroundTextureAtlas.load();
 		
-		if (this instanceof SplashScreen) {
-			mBackgroundSprite = new Sprite(0, 0, mBackgroundTextureRegion, ResourceManager.getEngine().getVertexBufferObjectManager())
-			{
-			    @Override
-			    public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float X, float Y) 
-			    {
-			        if (pSceneTouchEvent.isActionUp())
-			        {
-			        	if (((Sprite)this).getParent() instanceof SplashScreen)
-			        		SceneManager.getInstance().showScene(new EpisodeScreen());
-			        	else 
-			        		SceneManager.getInstance().showScene(new InGameScreen());
-			        }
-			        return true;
-			    };
-			};
-			this.registerTouchArea(mBackgroundSprite);
-		}
-		
-		else {
-			mBackgroundSprite = new Sprite(0, 0, mBackgroundTextureRegion, ResourceManager.getEngine().getVertexBufferObjectManager());
-		}
-		
+		mBackgroundSprite = new Sprite(0, 0, mBackgroundTextureRegion, ResourceManager.getEngine().getVertexBufferObjectManager());
 	    //splash.setScale(1f);
 		mBackgroundSprite.setWidth(mWidth);
 		mBackgroundSprite.setHeight(mHeight);
@@ -93,9 +71,4 @@ public abstract class ManagedScene extends Scene {
 	public abstract void onShowScene();
 	public abstract void onHideScene();
 
-	//TODO to handle this
-	public void onBackKeyPressed() {
-		// TODO Auto-generated method stub
-		System.exit(0);
-	}
 }

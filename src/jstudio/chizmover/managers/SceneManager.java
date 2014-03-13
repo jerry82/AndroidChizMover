@@ -1,16 +1,13 @@
 package jstudio.chizmover.managers;
 
 import jstudio.chizmover.data.LevelDetailEntity;
-import jstudio.chizmover.scene.InGameMenu;
-import jstudio.chizmover.scene.InGameScreen;
-import jstudio.chizmover.scene.ManagedScene;
-import jstudio.chizmover.scene.PauseMenu;
+import jstudio.chizmover.data.PackEntity;
+import jstudio.chizmover.scene.*;
 
 import org.andengine.engine.Engine;
-import org.andengine.engine.camera.hud.HUD;
-import org.andengine.engine.handler.IUpdateHandler;
-import org.andengine.entity.scene.Scene;
+import org.andengine.engine.camera.Camera;
 import org.andengine.entity.scene.menu.MenuScene;
+
 
 import android.util.Log;
 
@@ -30,6 +27,9 @@ public class SceneManager extends Object{
 	private CurrentMenu mCurrentMenu;
 
 	private PauseMenu mPauseMenu;
+	private WinLevelMenu mWinLevelMenu;
+	private WinEpisodeMenu mWinEpisodeMenu;
+	private InstructionMenu mInstructionMenu;
 	
 	public SceneManager() {
 		mEngine = ResourceManager.getEngine();
@@ -54,10 +54,54 @@ public class SceneManager extends Object{
 		mNextScene.onLoadManagedScene();
 		mNextScene.onShowManagedScene();
 		mCurrentScene = mNextScene;
-		
-		createInGameMenu();
 	}
 
+	/*
+	 *	win dialog 
+	 */
+	public void showWinLevelMenu() {
+		//show another menu
+		if (mCurrentScene instanceof InGameScreen) {
+			if (mCurrentMenu == CurrentMenu.NoMenu) {
+				mWinLevelMenu = new WinLevelMenu(ResourceManager.getInstance().camera);
+				((InGameScreen)mCurrentScene).getMenu().setChildScene(mWinLevelMenu);
+				mCurrentMenu = CurrentMenu.CompleteLevelMenu;
+			}
+		}
+	}
+	
+	public void showWinEpisodeMenu() {
+		//show another menu
+		if (mCurrentScene instanceof InGameScreen) {
+			if (mCurrentMenu == CurrentMenu.NoMenu) {
+				mWinEpisodeMenu = new WinEpisodeMenu(ResourceManager.getInstance().camera);
+				((InGameScreen)mCurrentScene).getMenu().setChildScene(mWinEpisodeMenu);
+				mCurrentMenu = CurrentMenu.CompleteEpisodeMenu;
+			}
+		}
+	}
+	
+	public void showInstructionMenu() {
+		if (mCurrentScene instanceof InGameScreen) {
+			hidePauseMenu();
+			
+			mInstructionMenu = new InstructionMenu(ResourceManager.getInstance().camera);
+			((InGameScreen)mCurrentScene).getMenu().setChildScene(mInstructionMenu);
+			mCurrentMenu = CurrentMenu.InstructionMenu;
+		}
+	}
+	
+	public void hideInstructionMenu() {
+		if (mInstructionMenu == null) return;
+		
+		mInstructionMenu.unLoad();
+		mCurrentMenu = CurrentMenu.NoMenu;
+	}
+	
+	public void showWinGameScreen() {
+		showScene(new EndGameScreen());
+	}
+	
 	/*
 	 * 	handle main menu
 	 */
@@ -78,6 +122,8 @@ public class SceneManager extends Object{
 		mPauseMenu.unLoad();
 		mCurrentMenu = CurrentMenu.NoMenu;
 	}
+	
+	
 	
 	public void handlePrevBtnClick() {
 		LevelDetailEntity prevLevel = GameManager.getInstance().getPrevLevel();
@@ -102,17 +148,36 @@ public class SceneManager extends Object{
 		
 		GameManager.getInstance().setCurrentLevel(nextLevel);
 		showScene(new InGameScreen());
+	}
+	
+	public void handleEpisodeSelection(int packId, int levelNum) {
+		LevelDetailEntity curLevel = GameManager.getInstance().getLevelDetail(packId, levelNum);
 		
+		if (curLevel == null) {
+			Log.e(TAG, "error get curLevel");
+			return;
+		}
+		
+		GameManager.getInstance().setCurrentLevel(curLevel);
+		showScene(new InGameScreen());
 	}
 	
 	//only create when there's no menu
-	public void createInGameMenu() {
-		if (mCurrentScene instanceof InGameScreen) {
-			InGameMenu menu = new InGameMenu(ResourceManager.getInstance().camera);
-			mCurrentScene.setChildScene(menu);
-			((InGameScreen)mCurrentScene).setMenu(menu);
-			mCurrentMenu = CurrentMenu.NoMenu;
-		}
+	public MenuScene createInGameMenu() {
+		boolean showPrev = false;
+		boolean showNext = false;
+		
+		LevelDetailEntity entity = GameManager.getInstance().getCurrentLevel();
+		showPrev = entity.getLevelNum() > 1;
+		
+		PackEntity pack = GameManager.getInstance().getEpisode(entity.getPackId());
+		showNext = entity.getLevelNum() < pack.getCurrentLevel();
+		
+		InGameMenu menu = new InGameMenu(ResourceManager.getInstance().camera, showPrev, showNext);
+		//mCurrentScene.setChildScene(menu);
+		mCurrentMenu = CurrentMenu.NoMenu;
+		
+		return menu;
 	}
 	
 	public CurrentMenu getCurrentMenu() {
@@ -126,4 +191,21 @@ public class SceneManager extends Object{
 	/*
 	 * 	handle popup menu
 	 */
+	public void onBackKeyPressed() {
+		if (mCurrentScene == null) 
+			return;
+		
+		System.exit(0);
+		
+		/*
+		if (mCurrentScene instanceof SplashScreen) {
+			System.exit(0);
+		}
+		else if (mCurrentScene instanceof EpisodeScreen) {
+			showScene(new SplashScreen());
+		}
+		else if (mCurrentScene instanceof InGameScreen) {
+			showScene(new EpisodeScreen());
+		}*/
+	}
 }

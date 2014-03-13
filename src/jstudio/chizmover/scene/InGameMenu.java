@@ -1,6 +1,7 @@
 package jstudio.chizmover.scene;
 
 import jstudio.chizmover.managers.CurrentMenu;
+import jstudio.chizmover.managers.GameManager;
 import jstudio.chizmover.managers.ResourceManager;
 import jstudio.chizmover.managers.SceneManager;
 
@@ -30,9 +31,15 @@ public class InGameMenu extends MenuScene implements IOnMenuItemClickListener {
 	private BitmapTextureAtlas mPrevBMP;
 	private ITextureRegion mPrevTR;
 	
-	public InGameMenu(Camera pCamera) {
+	private boolean mShowPrev = false;
+	private boolean mShowNext = false;
+	
+	public InGameMenu(Camera pCamera, boolean showPrev, boolean showNext) {
 		super(pCamera);
 		// TODO Auto-generated constructor stub
+		this.mShowPrev = showPrev;
+		this.mShowNext = showNext;
+		
 		onLoad();
 	}
 	
@@ -51,29 +58,36 @@ public class InGameMenu extends MenuScene implements IOnMenuItemClickListener {
 		mNextBMP.load();
 		mPrevBMP.load();
 		
+		float pad = 10;
+		
 		final IMenuItem pauseMI = new ScaleMenuItemDecorator(
 				new SpriteMenuItem(ResourceManager.PauseID, mPauseTR, ResourceManager.getEngine().getVertexBufferObjectManager()), 
-				1.2f , 1f);
-		 
-		final IMenuItem prevMI = new ScaleMenuItemDecorator(
-				new SpriteMenuItem(ResourceManager.PrevID, mPrevTR, ResourceManager.getEngine().getVertexBufferObjectManager()), 
 				1.2f , 1f);
 		
 		final IMenuItem nextMI = new ScaleMenuItemDecorator(
 				new SpriteMenuItem(ResourceManager.NextID, mNextTR, ResourceManager.getEngine().getVertexBufferObjectManager()), 
 				1.2f , 1f);
-	    
-	    this.addMenuItem(pauseMI);
-	    this.addMenuItem(prevMI);
-	    this.addMenuItem(nextMI);
-	    
-	    this.buildAnimations();
+	 
+		final IMenuItem prevMI = new ScaleMenuItemDecorator(
+				new SpriteMenuItem(ResourceManager.PrevID, mPrevTR, ResourceManager.getEngine().getVertexBufferObjectManager()), 
+				1.2f , 1f);
+		
+		this.addMenuItem(pauseMI);
+		
+		if (mShowPrev)
+			this.addMenuItem(prevMI);
+		
+		if (mShowNext)
+			this.addMenuItem(nextMI);
+
+		this.buildAnimations();
+		
+		//only can set after build animations();
+		pauseMI.setPosition(pauseMI.getWidth() / 2, ResourceManager.getInstance().cameraHeight - pad - pauseMI.getHeight() / 2);
+		prevMI.setPosition(this.getCamera().getCameraSceneWidth() - prevMI.getWidth() / 2 - prevMI.getWidth(), pauseMI.getY());
+		nextMI.setPosition(this.getCamera().getCameraSceneWidth() - nextMI.getWidth() / 2, pauseMI.getY());
+		
 	    this.setBackgroundEnabled(false);
-	    
-	    float pad = 10;
-	    pauseMI.setPosition(pauseMI.getWidth() / 2, this.getCamera().getCameraSceneHeight() - pad - pauseMI.getHeight() / 2);
-	    nextMI.setPosition(this.getCamera().getCameraSceneWidth() - nextMI.getWidth() / 2, pauseMI.getY());
-	    prevMI.setPosition(nextMI.getX() - prevMI.getWidth(), pauseMI.getY());
 	    
 	    this.setOnMenuItemClickListener(this);
 	}
@@ -82,6 +96,8 @@ public class InGameMenu extends MenuScene implements IOnMenuItemClickListener {
 		mPauseBMP.unload();
 		mNextBMP.unload();
 		mPrevBMP.unload();
+		
+		
 		
 		this.detachSelf();
 	}
@@ -95,6 +111,7 @@ public class InGameMenu extends MenuScene implements IOnMenuItemClickListener {
 		        case ResourceManager.PauseID:
 		        	Log.i(TAG, "click info");
 		        	SceneManager.getInstance().handlePauseBtnClick();
+		        	//GameManager.getInstance().handleGameWin();
 		            return true;
 		        case ResourceManager.PrevID:
 		        	Log.i(TAG, "click prev");

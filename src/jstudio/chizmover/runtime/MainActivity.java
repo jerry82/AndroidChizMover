@@ -54,6 +54,8 @@ public class MainActivity extends BaseGameActivity {
 		//prevent turning off while playing
 		engineOptions.setWakeLockOptions(WakeLockOptions.SCREEN_ON);
 		
+		engineOptions.getAudioOptions().setNeedsMusic(true);
+		
 		return engineOptions;
 	}
 	
@@ -99,7 +101,7 @@ public class MainActivity extends BaseGameActivity {
 	{  
 	    if (keyCode == KeyEvent.KEYCODE_BACK)
 	    {
-	        SceneManager.getInstance().getCurrentScene().onBackKeyPressed();
+	        SceneManager.getInstance().onBackKeyPressed();
 	    }
 	    return false; 
 	}

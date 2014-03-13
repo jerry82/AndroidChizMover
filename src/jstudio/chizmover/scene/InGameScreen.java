@@ -1,8 +1,10 @@
 package jstudio.chizmover.scene;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.andengine.audio.music.exception.MusicReleasedException;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.AlphaModifier;
 import org.andengine.entity.modifier.DelayModifier;
@@ -99,7 +101,7 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 	
 	private void createScreenResource() {
 		//create resources
-		int tmpEdge = GameManager.getInstance().SpriteCurrentEdge;
+		int tmpEdge = ResourceManager.FixSizeSpriteEdge;
 		
 		mWallBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), tmpEdge, tmpEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		mWallTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mWallBMP, ResourceManager.getActivity(), ResourceManager.WallImageName, 0, 0);
@@ -260,6 +262,22 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 		setCurrentLevel(GameManager.getInstance().getCurrentLevel());
 		
 		createGameGUI();
+		
+		//create menu
+		MenuScene menu = SceneManager.getInstance().createInGameMenu();
+		this.setChildScene(menu);
+		setMenu(menu);
+		
+		//play music
+		try {
+			ResourceManager.getInstance().gameSound.play();
+		} catch (MusicReleasedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
 	}
 
 	@Override
@@ -267,14 +285,28 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 		// TODO Auto-generated method stub
 		super.onUnloadScene();
 		
-		mFont.unload();
-		mWallBMP.unload();
-		mBotBMP.unload();
-		mBoxBMP.unload();
-		mTargetBMP.unload();
-		mCanMoveBMP.unload();
-		mCanNOTMoveBMP.unload();
-		
+		try {
+			ResourceManager.getActivity().runOnUpdateThread(new Runnable(){
+				@Override 
+				public void run() {
+					mFont.unload();
+					mWallBMP.unload();
+					mBotBMP.unload();
+					mBoxBMP.unload();
+					mTargetBMP.unload();
+					mCanMoveBMP.unload();
+					mCanNOTMoveBMP.unload();
+					
+					detachChildren();
+					
+					if (ResourceManager.getInstance().gameSound.isPlaying())
+						ResourceManager.getInstance().gameSound.pause();
+				}
+			});
+		}
+		catch (Exception ex){
+
+		}
 	}
 
 	@Override
@@ -359,6 +391,12 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 			
 			if (SceneManager.getInstance().getCurrentMenu() == CurrentMenu.PauseMenu) {
 				SceneManager.getInstance().hidePauseMenu();
+				return false;
+			}
+			
+			if (SceneManager.getInstance().getCurrentMenu() == CurrentMenu.CompleteLevelMenu ||
+					SceneManager.getInstance().getCurrentMenu() == CurrentMenu.CompleteEpisodeMenu ||
+					SceneManager.getInstance().getCurrentMenu() == CurrentMenu.InstructionMenu) {
 				return false;
 			}
 			
@@ -499,6 +537,7 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 	
 	private void handleGameWin() {
 		Log.i(TAG, "game is won");
+		GameManager.getInstance().handleGameWin();
 	}
 	
 	private boolean moveBot(String pathString, float[] botScenePos) {

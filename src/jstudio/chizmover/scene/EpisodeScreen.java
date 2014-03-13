@@ -9,7 +9,10 @@ import jstudio.chizmover.managers.ResourceManager;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.Entity;
+import org.andengine.entity.IEntity;
+import org.andengine.entity.modifier.DelayModifier;
 import org.andengine.entity.modifier.MoveByModifier;
+import org.andengine.entity.modifier.IEntityModifier.IEntityModifierListener;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
@@ -28,6 +31,7 @@ import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.region.ITextureRegion;
+import org.andengine.util.modifier.IModifier;
 
 import android.graphics.Color;
 import android.util.Log;
@@ -49,9 +53,12 @@ public class EpisodeScreen extends ManagedScene implements IScrollDetectorListen
 	private Text mTitle; 
 	private SurfaceScrollDetector mScrollDetector = null;
 	private ClickDetector mClickDetector = null;
+	private Rectangle mClickBar;
 	
 	private float mMinY;
 	private float mMaxY;
+	
+	private List<PackEntity> mAllEpisodes;
 	
 	public EpisodeScreen() {
 		super(ResourceManager.EpisodeScreenImage);
@@ -68,17 +75,15 @@ public class EpisodeScreen extends ManagedScene implements IScrollDetectorListen
 		
 		createTitle();
 		
-		createText();
+		createEpisodeText();
 		
-		createRectangle(300);
-				
-		 this.mScrollDetector = new SurfaceScrollDetector(this);
-		 this.mClickDetector = new ClickDetector(this);
+		this.mScrollDetector = new SurfaceScrollDetector(this);
+		this.mClickDetector = new ClickDetector(this);
 		
-		 this.setOnSceneTouchListener(this);
-		 this.setTouchAreaBindingOnActionDownEnabled(true);
-		 this.setTouchAreaBindingOnActionMoveEnabled(true);            
-		 this.setOnSceneTouchListenerBindingOnActionDownEnabled(true);
+		this.setOnSceneTouchListener(this);
+		this.setTouchAreaBindingOnActionDownEnabled(true);
+		this.setTouchAreaBindingOnActionMoveEnabled(true);            
+		this.setOnSceneTouchListenerBindingOnActionDownEnabled(true);
 	}
 
 	@Override
@@ -86,10 +91,22 @@ public class EpisodeScreen extends ManagedScene implements IScrollDetectorListen
 		// TODO Auto-generated method stub
 		super.onUnloadScene();
 		
-		mFont.unload();
-		mFont1.unload();
-		mFont2.unload();
-		mLockBMP.unload();
+		ResourceManager.getActivity().runOnUpdateThread(new Runnable(){
+			@Override
+			public void run() {
+				mFont.unload();
+				mFont1.unload();
+				mFont2.unload();
+				mLockBMP.unload();
+				
+				detachChildren();
+			}
+		});
+
+		
+		//scroll camera to default pos
+		Camera camera = ResourceManager.getInstance().camera;
+		camera.setCenter(camera.getWidth() / 2, camera.getHeight() / 2);
 	}
 
 	@Override
@@ -142,52 +159,93 @@ public class EpisodeScreen extends ManagedScene implements IScrollDetectorListen
 		mLockBMP.load();
 	}
 	
-	private void createText() {
+	private void createEpisodeText() {
 		//get list of episode from dB
-		List<PackEntity> allEpisodes = GameManager.getInstance().getAllEpisodes();
+		mAllEpisodes = GameManager.getInstance().getAllEpisodes();
 		
-		if (allEpisodes.size() == 0) return;
+		if (mAllEpisodes.size() == 0) return;
 		float height = ResourceManager.getInstance().cameraHeight;
 		
-		for (PackEntity entity : allEpisodes) {
+		for (PackEntity entity : mAllEpisodes) {
 			String id = Integer.toString(entity.getId());
 			String content = String.format("Completed: %1$d/%2$d", 
 					entity.getCurrentLevel() - 1, entity.getNumberOfLevel());
 			
-			EpisodeEntity sprite = new EpisodeEntity(0, 0) {
-	            @Override
-	            public boolean onAreaTouched(final TouchEvent pSceneTouchEvent,
-	                                         final float pTouchAreaLocalX,
-	                                         final float pTouchAreaLocalY) {
-	                Log.i(TAG, "touch me");
-	                return false;
-	            }
-	        };
+			EpisodeEntity sprite = new EpisodeEntity(0, 0) ;
 			
-			sprite.create(id, content, mFont1, mFont2, mLockTR, true);
+			sprite.create(id, content, mFont1, mFont2, mLockTR, entity.getLock());
 			sprite.setPosition(0, height - entity.getId() * itemHeight - itemHeight/2);
 			this.attachChild(sprite);
-			this.registerTouchArea(sprite);
+			//this.registerTouchArea(sprite);
 		}
 		
-		//set camera minY
+		//set scroll camera minY, maxY
 		mMaxY = ResourceManager.getInstance().cameraHeight / 2 + 2;
-		float delta = (allEpisodes.size() + 1) * itemHeight - ResourceManager.getInstance().cameraHeight/2;
+		float delta = (mAllEpisodes.size() + 1) * itemHeight - ResourceManager.getInstance().cameraHeight/2;
 		mMinY = (float) Math.ceil(mMaxY - delta / 2 - 100);
-		
-
 	}
 	
-	private void createRectangle(float pY) {
-		Rectangle coloredRect = new Rectangle(ResourceManager.getInstance().cameraWidth / 2, pY, 
+	private void handleLevelClick(final int levelId) {
+		
+		if (mAllEpisodes == null) 
+			return;
+		
+		if (levelId <= 0 || levelId > mAllEpisodes.size())
+			return;
+		
+		int idx = levelId - 1;		
+		final PackEntity pack = mAllEpisodes.get(idx);
+		
+		if (pack == null) 
+			return;
+
+		//take out comment in production
+		
+		if (pack.getId() > 1 && pack.getLock() == true)
+			return;
+		
+		float pY = ResourceManager.getInstance().cameraHeight - levelId * itemHeight - itemHeight/2;
+				
+		mClickBar = new Rectangle(ResourceManager.getInstance().cameraWidth / 2, pY, 
 				ResourceManager.getInstance().cameraWidth, 
 				itemHeight,
 				ResourceManager.getEngine().getVertexBufferObjectManager());
-		coloredRect.setColor(1f, 1f, 1f, 0.2f);
+		mClickBar.setColor(1f, 1f, 1f, 0.2f);
 		
+		DelayModifier delay = new DelayModifier(0.3f, new IEntityModifierListener() {
+			@Override
+			public void onModifierStarted(IModifier<IEntity> pModifier,
+					IEntity pItem) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void onModifierFinished(IModifier<IEntity> pModifier,
+					IEntity pItem) {
+				// TODO Auto-generated method stub
+				ResourceManager.getEngine().runOnUpdateThread(new Runnable(){
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+						removeClickBar();
+						loadLevel(pack);
+					}
+				});
+			}
+		});
 		
-		this.attachChild(coloredRect);
-		
+		mClickBar.registerEntityModifier(delay);
+		this.attachChild(mClickBar);	
+	}
+	
+	private void removeClickBar() {
+		mClickBar.clearEntityModifiers();
+		this.detachChild(mClickBar);
+	}
+	
+	private void loadLevel(PackEntity pack) {
+		GameManager.getInstance().loadLevel(pack);
 	}
 
 	/*
@@ -245,8 +303,12 @@ public class EpisodeScreen extends ManagedScene implements IScrollDetectorListen
 	@Override
 	public void onClick(ClickDetector pClickDetector, int pPointerID,
 			float pSceneX, float pSceneY) {
-		// TODO Auto-generated method stub
-		Log.i(TAG, "onclick: " + pSceneY);
 		
+		//get episode item from screen
+		float dFromTopScreen = ResourceManager.getInstance().cameraHeight - pSceneY;
+		int levelId = (int)Math.round((dFromTopScreen - itemHeight/2) / itemHeight);
+		Log.i(TAG, "you seleted: " + levelId);
+		
+		handleLevelClick(levelId);
 	}
 }
