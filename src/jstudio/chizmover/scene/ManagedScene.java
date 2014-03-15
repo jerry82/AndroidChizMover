@@ -1,11 +1,10 @@
 package jstudio.chizmover.scene;
 
+import jstudio.chizmover.managers.GameManager;
 import jstudio.chizmover.managers.ResourceManager;
-import jstudio.chizmover.managers.SceneManager;
 
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.sprite.Sprite;
-import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
@@ -28,6 +27,7 @@ public abstract class ManagedScene extends Scene {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 		mBackgroundTextureAtlas = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), (int)Math.round(mWidth), (int)Math.round(mHeight), TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		mBackgroundTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mBackgroundTextureAtlas, ResourceManager.getActivity(), backgroundImageName, 0, 0);
+		mBackgroundTextureAtlas.load();
 	}
 	
 	//to be called by SceneManager
@@ -48,10 +48,7 @@ public abstract class ManagedScene extends Scene {
 	}
 	//end
 	
-	//methods to override in subclasses
 	protected void onLoadScene() {
-		mBackgroundTextureAtlas.load();
-		
 		mBackgroundSprite = new Sprite(0, 0, mBackgroundTextureRegion, ResourceManager.getEngine().getVertexBufferObjectManager());
 	    //splash.setScale(1f);
 		mBackgroundSprite.setWidth(mWidth);
@@ -60,14 +57,24 @@ public abstract class ManagedScene extends Scene {
 		
 		if (!(this instanceof EpisodeScreen))
 			this.attachChild(mBackgroundSprite);
+		
+		//don't play music in other screen
+		if (!(this instanceof InGameScreen)) {
+			GameManager.getInstance().stopSound();
+		}
 	}
 	
 	protected void onUnloadScene() {
-		mBackgroundTextureAtlas.unload();
-		this.detachChildren();
-		this.clearTouchAreas();
-		this.unregisterTouchArea(mBackgroundSprite);
+		ResourceManager.getEngine().runOnUpdateThread(new Runnable(){
+			@Override
+			public void run() {
+				ManagedScene.this.detachChildren();
+				ManagedScene.this.clearTouchAreas();
+				ManagedScene.this.unregisterTouchArea(mBackgroundSprite);
+			}
+		});
 	}
+	
 	public abstract void onShowScene();
 	public abstract void onHideScene();
 

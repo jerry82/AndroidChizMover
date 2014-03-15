@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
@@ -50,14 +49,14 @@ public class DBHelper extends SQLiteOpenHelper {
 	}
 	
 	public void createDB() throws IOException {
-		//boolean dbExist = checkDB();
+		boolean dbExist = checkDB();
 		
 		//override database anyway
 		this.getReadableDatabase();
 		this.close();
 		
-		copyDB();
-		/*
+		//copyDB();
+		
 		if (!dbExist) {
 			System.out.println("db does not exist");
 			//this method create empty database 
@@ -67,7 +66,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		}
 		else {
 			System.out.println("db exists");
-		}*/
+		}
 	}
 	
 	/*

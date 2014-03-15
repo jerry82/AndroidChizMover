@@ -1,8 +1,8 @@
 package jstudio.chizmover.runtime;
 
+
 import java.io.IOException;
 
-import jstudio.chizmover.data.GameDB;
 import jstudio.chizmover.managers.ResourceManager;
 import jstudio.chizmover.managers.SceneManager;
 import jstudio.chizmover.scene.SplashScreen;
@@ -15,24 +15,17 @@ import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.WakeLockOptions;
 import org.andengine.engine.options.resolutionpolicy.FillResolutionPolicy;
 import org.andengine.entity.scene.Scene;
-import org.andengine.entity.scene.background.Background;
-import org.andengine.entity.sprite.Sprite;
-import org.andengine.opengl.texture.TextureOptions;
-import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
-import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
-import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.ui.activity.BaseGameActivity;
 
 import android.view.KeyEvent;
 
-
 public class MainActivity extends BaseGameActivity {
 
+	private static final String TAG = "MainActivity";
 	private static final float HEIGHT = 800;
 	private static final float WIDTH = 480;
-	
-	private Scene mScene;
 	private Camera mCamera;
+	
 	
 	@Override
 	public EngineOptions onCreateEngineOptions() {
@@ -70,6 +63,7 @@ public class MainActivity extends BaseGameActivity {
 			throws IOException {
 		
 		ResourceManager.setup(this, (LimitedFPSEngine) this.getEngine(), mCamera, WIDTH, HEIGHT);
+		
 		pOnCreateResourcesCallback.onCreateResourcesFinished();
 	}
 
@@ -105,4 +99,13 @@ public class MainActivity extends BaseGameActivity {
 	    }
 	    return false; 
 	}
+	
+    @Override
+    protected void onStart() {
+        super.onStart();
+        /*
+        if (!mResolvingError) {  // more about this later
+            mGoogleApiClient.connect();
+        }*/
+    }
 }

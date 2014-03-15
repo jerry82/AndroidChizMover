@@ -1,12 +1,10 @@
 package jstudio.chizmover.scene;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.andengine.audio.music.exception.MusicReleasedException;
 import org.andengine.entity.IEntity;
-import org.andengine.entity.modifier.AlphaModifier;
 import org.andengine.entity.modifier.DelayModifier;
 import org.andengine.entity.modifier.IEntityModifier.IEntityModifierListener;
 import org.andengine.entity.modifier.MoveModifier;
@@ -20,11 +18,6 @@ import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
-import org.andengine.opengl.font.FontFactory;
-import org.andengine.opengl.texture.TextureOptions;
-import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
-import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
-import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.util.modifier.IModifier;
 import org.andengine.util.modifier.ease.EaseLinear;
 
@@ -65,23 +58,7 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 	 * 	sprites
 	 */
 	//background
-	protected BitmapTextureAtlas mWallBMP;
-	protected ITextureRegion mWallTR;
-	
-	protected BitmapTextureAtlas mBotBMP;
-	protected ITextureRegion mBotTR;
-	
-	protected BitmapTextureAtlas mBoxBMP;
-	protected ITextureRegion mBoxTR;
-	
-	protected BitmapTextureAtlas mTargetBMP;
-	protected ITextureRegion mTargetTR;
-	
-	protected BitmapTextureAtlas mCanMoveBMP;
-	protected ITextureRegion mCanMoveTR;
-	
-	protected BitmapTextureAtlas mCanNOTMoveBMP;
-	protected ITextureRegion mCanNOTMoveTR;
+
 		
 	protected Text LevelText;
 	
@@ -95,40 +72,8 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 		super(ResourceManager.GameBackgroundImage);
 		
 		boxSprites = new ArrayList<Sprite>();
-		
-		createScreenResource();
 	}
-	
-	private void createScreenResource() {
-		//create resources
-		int tmpEdge = ResourceManager.FixSizeSpriteEdge;
 		
-		mWallBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), tmpEdge, tmpEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		mWallTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mWallBMP, ResourceManager.getActivity(), ResourceManager.WallImageName, 0, 0);
-	
-		mBotBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), tmpEdge, tmpEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		mBotTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mBotBMP, ResourceManager.getActivity(), ResourceManager.BotImageName, 0, 0);
-		
-		mBoxBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), tmpEdge, tmpEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		mBoxTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mBoxBMP, ResourceManager.getActivity(), ResourceManager.BoxImageName, 0, 0);
-		
-		mTargetBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), tmpEdge, tmpEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		mTargetTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mTargetBMP, ResourceManager.getActivity(), ResourceManager.TargetImageName, 0, 0);
-		
-		mCanMoveBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), tmpEdge, tmpEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		mCanMoveTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mCanMoveBMP, ResourceManager.getActivity(), ResourceManager.CanmoveImage, 0, 0);
-		
-		mCanNOTMoveBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), tmpEdge, tmpEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		mCanNOTMoveTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mCanNOTMoveBMP, ResourceManager.getActivity(), ResourceManager.CannotMoveImage, 0, 0);
-
-		mWallBMP.load();
-		mBotBMP.load();
-		mBoxBMP.load();
-		mTargetBMP.load();
-		mCanMoveBMP.load();
-		mCanNOTMoveBMP.load();
-	}
-	
 	/*
 	 * 	getters and setters
 	 */
@@ -164,7 +109,6 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 	public void createGameText(String text) {
 		if (mFont == null) {
 			mFont = ResourceManager.getInstance().getGameFont(43, Color.WHITE);
-			mFont.load();
 		}
 
 		LevelText = new Text(0, 0, 
@@ -195,39 +139,33 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 				
 				switch (ch) {
 					case GameManager.LEVEL_WALL_CHAR:
-						//mWallBMP.load();
-						tmpSprite = new Sprite(0, 0, mWallTR, ResourceManager.getEngine().getVertexBufferObjectManager());
+						tmpSprite = new Sprite(0, 0, ResourceManager.WallTR, ResourceManager.getEngine().getVertexBufferObjectManager());
 						break;
 						
 					case GameManager.LEVEL_BOT_CHAR:
-						//mBotBMP.load();
-						botSprite = new Sprite(0, 0, mBotTR, ResourceManager.getEngine().getVertexBufferObjectManager());
+						botSprite = new Sprite(0, 0, ResourceManager.BotTR, ResourceManager.getEngine().getVertexBufferObjectManager());
 						botSprite.setZIndex(2);
 						addSpriteToScene(botSprite, col, revertR);
 						
 						break;
 						
 					case GameManager.LEVEL_BOX_CHAR:
-						//mBoxBMP.load();
-						tmpSprite = new Sprite(0, 0, mBoxTR, ResourceManager.getEngine().getVertexBufferObjectManager());
+						tmpSprite = new Sprite(0, 0, ResourceManager.BoxTR, ResourceManager.getEngine().getVertexBufferObjectManager());
 						tmpSprite.setZIndex(2);
 						boxSprites.add(tmpSprite);
 						break;
 					
 					case GameManager.LEVEL_TARGET:
-						mTargetBMP.load();
-						tmpSprite = new Sprite(0,  0,  mTargetTR, ResourceManager.getEngine().getVertexBufferObjectManager());
+						tmpSprite = new Sprite(0,  0,  ResourceManager.TargetTR, ResourceManager.getEngine().getVertexBufferObjectManager());
 						tmpSprite.setZIndex(1);
 						break;
 						
 					case GameManager.LEVEL_BOX_ON_TARGET:
-						//mBoxBMP.load();
-						mTargetBMP.load();
 						
-						tmpSprite = new Sprite(0,  0,  mTargetTR, ResourceManager.getEngine().getVertexBufferObjectManager());
+						tmpSprite = new Sprite(0,  0,  ResourceManager.TargetTR, ResourceManager.getEngine().getVertexBufferObjectManager());
 						tmpSprite.setZIndex(1);
 						
-						tmpAnotherSprite = new Sprite(0,  0,  mBoxTR, ResourceManager.getEngine().getVertexBufferObjectManager());
+						tmpAnotherSprite = new Sprite(0,  0,  ResourceManager.BoxTR, ResourceManager.getEngine().getVertexBufferObjectManager());
 						tmpAnotherSprite.setZIndex(2);
 						
 						boxSprites.add(tmpAnotherSprite);
@@ -270,12 +208,12 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 		
 		//play music
 		try {
-			ResourceManager.getInstance().gameSound.play();
-		} catch (MusicReleasedException e) {
-			// TODO Auto-generated catch block
+			GameManager.getInstance().playSound();
+		} 
+		catch (MusicReleasedException e) {
 			e.printStackTrace();
-		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
+		} 
+		catch (IllegalStateException e) {
 			e.printStackTrace();
 		} 
 	}
@@ -289,18 +227,7 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 			ResourceManager.getActivity().runOnUpdateThread(new Runnable(){
 				@Override 
 				public void run() {
-					mFont.unload();
-					mWallBMP.unload();
-					mBotBMP.unload();
-					mBoxBMP.unload();
-					mTargetBMP.unload();
-					mCanMoveBMP.unload();
-					mCanNOTMoveBMP.unload();
-					
 					detachChildren();
-					
-					if (ResourceManager.getInstance().gameSound.isPlaying())
-						ResourceManager.getInstance().gameSound.pause();
 				}
 			});
 		}
@@ -387,7 +314,7 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 		
 		if (pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
 			//if there is popup menu return
-			Log.i(TAG, "on scene touch");
+			//Log.i(TAG, "on scene touch");
 			
 			if (SceneManager.getInstance().getCurrentMenu() == CurrentMenu.PauseMenu) {
 				SceneManager.getInstance().hidePauseMenu();
@@ -401,7 +328,7 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 			}
 			
 			if (mBotIsMoving)  {
-				Log.i(TAG, "touch: bot is moving");
+				//Log.i(TAG, "touch: bot is moving");
 				return false;
 			}
 			
@@ -419,9 +346,6 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 	        int[] touchPos = GameManager.getInstance().getMatrixPos(new float[]{ touchX, touchY});
 	        int[] botPos = GameManager.getInstance().getMatrixPos(new float[] {botX, botY});
 	        	        
-	        Log.i(TAG, "row: " + touchPos[0]);
-	        Log.i(TAG, "col: " + touchPos[1]);
-	        
 	        Sprite box = getTouchBox(touchPos);
 	        if (box != null) {
 	        	handleTouchOnBox(box);
@@ -430,7 +354,6 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 		        GameManager.getInstance().initMaze();
 		        String pathString = GameManager.getInstance().getShortestPath(touchPos, botPos);
 		        
-		        Log.i(TAG, "move: " + pathString);
 		        moveBot(pathString, new float[] {botX, botY});
 		        if (pathString == null || pathString.length() == 0) {
 		        	showMoveSprite(false, touchPos[1], touchPos[0]);
@@ -554,7 +477,7 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 					public void onPathStarted(PathModifier pPathModifier,
 							IEntity pEntity) {
 			            mBotIsMoving = true;
-			            Log.i(TAG, "bot runs");
+			            //Log.i(TAG, "bot runs");
 					}
 
 					@Override
@@ -577,14 +500,13 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 					public void onPathWaypointFinished(
 							PathModifier pPathModifier, IEntity pEntity,
 							int pWaypointIndex) {
-						
 					}
 
 					@Override
 					public void onPathFinished(PathModifier pPathModifier,
 							IEntity pEntity) {
 			            mBotIsMoving = false;
-			            Log.i(TAG, "bot stop");
+			            //Log.i(TAG, "bot stop");
 					}
 		}, EaseLinear.getInstance());
 
@@ -621,7 +543,7 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 			}
 			
 			path.to(botScenePos[0], botScenePos[1]);
-			Log.i(TAG, "move to: " + botScenePos[0] + " - " + botScenePos[1]);
+			//Log.i(TAG, "move to: " + botScenePos[0] + " - " + botScenePos[1]);
 		}
 		return path;
 	}
@@ -633,11 +555,11 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 			return false;
 		
 		if (canMove) {
-			canMoveSprite = new Sprite(0, 0, mCanMoveTR, ResourceManager.getEngine().getVertexBufferObjectManager());
+			canMoveSprite = new Sprite(0, 0, ResourceManager.CanMoveTR, ResourceManager.getEngine().getVertexBufferObjectManager());
 			sprite = canMoveSprite;
 		}
 		else {
-			cannotMoveSprite = new Sprite(0, 0, mCanNOTMoveTR, ResourceManager.getEngine().getVertexBufferObjectManager());
+			cannotMoveSprite = new Sprite(0, 0, ResourceManager.CanNOTMoveTR, ResourceManager.getEngine().getVertexBufferObjectManager());
 			sprite = cannotMoveSprite;
 		}
 		sprite.setZIndex(2);

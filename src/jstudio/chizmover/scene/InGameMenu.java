@@ -1,7 +1,6 @@
 package jstudio.chizmover.scene;
 
 import jstudio.chizmover.managers.CurrentMenu;
-import jstudio.chizmover.managers.GameManager;
 import jstudio.chizmover.managers.ResourceManager;
 import jstudio.chizmover.managers.SceneManager;
 
@@ -11,26 +10,12 @@ import org.andengine.entity.scene.menu.MenuScene.IOnMenuItemClickListener;
 import org.andengine.entity.scene.menu.item.IMenuItem;
 import org.andengine.entity.scene.menu.item.SpriteMenuItem;
 import org.andengine.entity.scene.menu.item.decorator.ScaleMenuItemDecorator;
-import org.andengine.opengl.texture.TextureOptions;
-import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
-import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
-import org.andengine.opengl.texture.region.ITextureRegion;
 
 import android.util.Log;
 
 public class InGameMenu extends MenuScene implements IOnMenuItemClickListener {
 	
 	private final static String TAG = "InGameMenu";
-
-	private BitmapTextureAtlas mPauseBMP;
-	private ITextureRegion mPauseTR;
-	
-	private BitmapTextureAtlas mNextBMP;
-	private ITextureRegion mNextTR;
-	
-	private BitmapTextureAtlas mPrevBMP;
-	private ITextureRegion mPrevTR;
-	
 	private boolean mShowPrev = false;
 	private boolean mShowNext = false;
 	
@@ -45,31 +30,18 @@ public class InGameMenu extends MenuScene implements IOnMenuItemClickListener {
 	
 	//load resource
 	private void onLoad() {
-		mPauseBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), ResourceManager.FixSizeBtnEdge, ResourceManager.FixSizeBtnEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		mPauseTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mPauseBMP, ResourceManager.getActivity(), ResourceManager.PauseImageName, 0, 0);
-		
-		mNextBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), ResourceManager.FixSizeBtnEdge, ResourceManager.FixSizeBtnEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		mNextTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mNextBMP, ResourceManager.getActivity(), ResourceManager.NextImageName, 0, 0);
-		
-		mPrevBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), ResourceManager.FixSizeBtnEdge, ResourceManager.FixSizeBtnEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
-		mPrevTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mPrevBMP, ResourceManager.getActivity(), ResourceManager.PrevImageName, 0, 0);
-	
-		mPauseBMP.load();
-		mNextBMP.load();
-		mPrevBMP.load();
-		
 		float pad = 10;
 		
 		final IMenuItem pauseMI = new ScaleMenuItemDecorator(
-				new SpriteMenuItem(ResourceManager.PauseID, mPauseTR, ResourceManager.getEngine().getVertexBufferObjectManager()), 
+				new SpriteMenuItem(ResourceManager.PauseID, ResourceManager.PauseTR, ResourceManager.getEngine().getVertexBufferObjectManager()), 
 				1.2f , 1f);
 		
 		final IMenuItem nextMI = new ScaleMenuItemDecorator(
-				new SpriteMenuItem(ResourceManager.NextID, mNextTR, ResourceManager.getEngine().getVertexBufferObjectManager()), 
+				new SpriteMenuItem(ResourceManager.NextID, ResourceManager.NextTR, ResourceManager.getEngine().getVertexBufferObjectManager()), 
 				1.2f , 1f);
 	 
 		final IMenuItem prevMI = new ScaleMenuItemDecorator(
-				new SpriteMenuItem(ResourceManager.PrevID, mPrevTR, ResourceManager.getEngine().getVertexBufferObjectManager()), 
+				new SpriteMenuItem(ResourceManager.PrevID, ResourceManager.PrevTR, ResourceManager.getEngine().getVertexBufferObjectManager()), 
 				1.2f , 1f);
 		
 		this.addMenuItem(pauseMI);
@@ -93,12 +65,7 @@ public class InGameMenu extends MenuScene implements IOnMenuItemClickListener {
 	}
 	
 	public void unLoad() {
-		mPauseBMP.unload();
-		mNextBMP.unload();
-		mPrevBMP.unload();
-		
-		
-		
+		this.detachChildren();
 		this.detachSelf();
 	}
 	

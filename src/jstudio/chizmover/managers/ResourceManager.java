@@ -9,15 +9,13 @@ import org.andengine.audio.music.MusicFactory;
 import org.andengine.engine.Engine;
 import org.andengine.engine.LimitedFPSEngine;
 import org.andengine.engine.camera.Camera;
-import org.andengine.entity.text.Text;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
-import org.andengine.opengl.texture.region.TextureRegion;
+import org.andengine.opengl.texture.region.ITextureRegion;
 
-import android.graphics.Color;
 import android.util.Log;
 
 import jstudio.chizmover.data.*;
@@ -39,6 +37,7 @@ public class ResourceManager {
 	public float cameraHeight;
 	
 	//variables - game resources
+	public static final String LeaderboardID = "CgkIsPfzg-UVEAIQAA";
 	public static final String SplashScreenImage = "SplashScreen_480x800.png";
 	public static final String EpisodeScreenImage = "episodeScreen_480x800.png";
 	public static final String GameBackgroundImage = "screen_480x800.png";
@@ -91,6 +90,37 @@ public class ResourceManager {
 	public static Font GameFont;
 	
 	/*
+	 * 	game resources
+	 */
+	
+	public static ITextureRegion WallTR;
+	public static ITextureRegion BotTR;
+	public static ITextureRegion BoxTR;
+	public static ITextureRegion TargetTR;
+	public static ITextureRegion CanMoveTR;
+	public static ITextureRegion CanNOTMoveTR;
+	
+	public static ITextureRegion PauseTR;
+	public static ITextureRegion NextTR;
+	public static ITextureRegion PrevTR;
+	
+	
+	public static ITextureRegion MenuBgTR;
+	public static ITextureRegion MenuTR;
+	public static ITextureRegion RestartTR;
+	public static ITextureRegion RadioOnTR;
+	public static ITextureRegion HelpTR;
+	//public static ITextureRegion mNextTR;
+	
+	
+	public static ITextureRegion BgLevelWinTR;
+	
+	
+	public static ITextureRegion BgEpisodeWinTR;
+	
+	
+	
+	/*
 	 * 	constructor and setup
 	 */
 	public ResourceManager() {
@@ -109,15 +139,21 @@ public class ResourceManager {
 		return getInstance().engine;
 	}
 	
+	public static void createGameResources() {
+		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
+		 
+		getInstance().loadInGameResources();
+		getInstance().loadMenuResources();
+	}
+	
 	public static void setup (MainActivity pActivity, LimitedFPSEngine pEngine, Camera camera, float pCameraWidth, float pCameraHeight) {
 		getInstance().activity = pActivity;
 		getInstance().engine = pEngine;
 		getInstance().camera = camera;
 		getInstance().cameraWidth = pCameraWidth;
 		getInstance().cameraHeight = pCameraHeight;
-		
-		//load splashscene first
-		//getInstance().loadSplashScreenResources();
+				
+		createGameResources();
 		
 		getInstance().createDatabase();
 		getInstance().loadSounds();
@@ -126,6 +162,103 @@ public class ResourceManager {
 	/*
 	 * 	loading resources
 	 */
+	private void loadInGameResources() {
+		BitmapTextureAtlas mWallBMP;
+		BitmapTextureAtlas mBotBMP;
+		BitmapTextureAtlas mBoxBMP;
+		BitmapTextureAtlas mTargetBMP;
+		BitmapTextureAtlas mCanMoveBMP;
+		BitmapTextureAtlas mCanNOTMoveBMP;
+		//create resources
+		int tmpEdge = ResourceManager.FixSizeSpriteEdge;
+		
+		mWallBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), tmpEdge, tmpEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		WallTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mWallBMP, ResourceManager.getActivity(), ResourceManager.WallImageName, 0, 0);
+	
+		mBotBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), tmpEdge, tmpEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		BotTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mBotBMP, ResourceManager.getActivity(), ResourceManager.BotImageName, 0, 0);
+		
+		mBoxBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), tmpEdge, tmpEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		BoxTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mBoxBMP, ResourceManager.getActivity(), ResourceManager.BoxImageName, 0, 0);
+		
+		mTargetBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), tmpEdge, tmpEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		TargetTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mTargetBMP, ResourceManager.getActivity(), ResourceManager.TargetImageName, 0, 0);
+		
+		mCanMoveBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), tmpEdge, tmpEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		CanMoveTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mCanMoveBMP, ResourceManager.getActivity(), ResourceManager.CanmoveImage, 0, 0);
+		
+		mCanNOTMoveBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), tmpEdge, tmpEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		CanNOTMoveTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mCanNOTMoveBMP, ResourceManager.getActivity(), ResourceManager.CannotMoveImage, 0, 0);
+
+		mWallBMP.load();
+		mBotBMP.load();
+		mBoxBMP.load();
+		mTargetBMP.load();
+		mCanMoveBMP.load();
+		mCanNOTMoveBMP.load();
+
+	}
+	
+	private void loadMenuResources() {
+		BitmapTextureAtlas mPauseBMP;
+		BitmapTextureAtlas mNextBMP;
+		BitmapTextureAtlas mPrevBMP;
+		
+		mPauseBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), ResourceManager.FixSizeBtnEdge, ResourceManager.FixSizeBtnEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		PauseTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mPauseBMP, ResourceManager.getActivity(), ResourceManager.PauseImageName, 0, 0);
+		
+		mNextBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), ResourceManager.FixSizeBtnEdge, ResourceManager.FixSizeBtnEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		NextTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mNextBMP, ResourceManager.getActivity(), ResourceManager.NextImageName, 0, 0);
+		
+		mPrevBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), ResourceManager.FixSizeBtnEdge, ResourceManager.FixSizeBtnEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		PrevTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mPrevBMP, ResourceManager.getActivity(), ResourceManager.PrevImageName, 0, 0);
+	
+		mPauseBMP.load();
+		mNextBMP.load();
+		mPrevBMP.load();
+		
+		BitmapTextureAtlas mMenuBgBMP;
+		BitmapTextureAtlas mMenuBMP;
+		BitmapTextureAtlas mRestartBMP;
+		BitmapTextureAtlas mRadioOnBMP;
+		BitmapTextureAtlas mHelpBMP;
+		//BitmapTextureAtlas mNextBMP;
+		
+		mMenuBgBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), 280, 90, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		MenuBgTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mMenuBgBMP, ResourceManager.getActivity(), ResourceManager.MenuBgImage, 0, 0);
+		
+		mMenuBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), ResourceManager.FixSizeBtnEdge, ResourceManager.FixSizeBtnEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		MenuTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mMenuBMP, ResourceManager.getActivity(), ResourceManager.MenuImage, 0, 0);
+		
+		mRestartBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), ResourceManager.FixSizeBtnEdge, ResourceManager.FixSizeBtnEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		RestartTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mRestartBMP, ResourceManager.getActivity(), ResourceManager.RestartImage, 0, 0);
+		
+		mRadioOnBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), ResourceManager.FixSizeBtnEdge, ResourceManager.FixSizeBtnEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		RadioOnTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mRadioOnBMP, ResourceManager.getActivity(), ResourceManager.RadioOnImage, 0, 0);
+		
+		mHelpBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), ResourceManager.FixSizeBtnEdge, ResourceManager.FixSizeBtnEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		HelpTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mHelpBMP, ResourceManager.getActivity(), ResourceManager.HelpImage, 0, 0);
+		
+		mNextBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), ResourceManager.FixSizeBtnEdge, ResourceManager.FixSizeBtnEdge, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		
+		mMenuBgBMP.load();
+		mMenuBMP.load();
+		mRestartBMP.load();
+		mRadioOnBMP.load();
+		mHelpBMP.load();
+		
+		BitmapTextureAtlas mBgLevelWinBMP;
+		BitmapTextureAtlas mBgEpisodeWinBMP;
+		
+		mBgLevelWinBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), 280, 120, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		BgLevelWinTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mBgLevelWinBMP, ResourceManager.getActivity(), ResourceManager.WinLevelBgImage, 0, 0);
+		
+		mBgEpisodeWinBMP = new BitmapTextureAtlas(ResourceManager.getActivity().getTextureManager(), 280, 120, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
+		BgEpisodeWinTR = BitmapTextureAtlasTextureRegionFactory.createFromAsset(mBgEpisodeWinBMP, ResourceManager.getActivity(), ResourceManager.WinEpisodeBgImage, 0, 0);
+		
+		mBgLevelWinBMP.load();
+		mBgEpisodeWinBMP.load();
+	}
 	
 	private void createDatabase() {
 		try {
@@ -141,6 +274,7 @@ public class ResourceManager {
 		Font tmpFont = FontFactory.createFromAsset(ResourceManager.getActivity().getFontManager(), ResourceManager.getActivity().getTextureManager(), 
 				256, 256, ResourceManager.getActivity().getAssets(),
 			    "font/angrybirds-regular.ttf", size, true, color);
+		tmpFont.load();
 		return tmpFont;
 	}
 	

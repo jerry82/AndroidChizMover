@@ -5,14 +5,7 @@ import jstudio.chizmover.managers.SceneManager;
 
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
-import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
-import org.andengine.opengl.texture.TextureOptions;
-import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
-import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
-import org.andengine.opengl.texture.region.ITextureRegion;
-
-import android.drm.DrmStore.Action;
 import android.util.Log;
 
 public class EndGameScreen extends ManagedScene implements IOnSceneTouchListener{

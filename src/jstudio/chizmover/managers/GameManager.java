@@ -5,12 +5,9 @@ import java.util.List;
 
 import android.util.Log;
 
-import jstudio.chizmover.data.DBHelper;
 import jstudio.chizmover.data.GameDB;
 import jstudio.chizmover.data.LevelDetailEntity;
 import jstudio.chizmover.data.PackEntity;
-import jstudio.chizmover.scene.EndGameScreen;
-import jstudio.chizmover.scene.WinEpisodeMenu;
 
 public class GameManager {
 	
@@ -34,6 +31,8 @@ public class GameManager {
 	
 	public int SpriteCurrentEdge;
 	public float SpriteScaleFactor;
+	
+	public boolean mSoundEnable = true;
 	
 	private List<String> mMazeChars;
 	private LevelDetailEntity mCurrentLevel = null;
@@ -175,9 +174,11 @@ public class GameManager {
 		//update resize currentEdge
 		SpriteCurrentEdge = (int)Math.ceil(SpriteCurrentEdge * SpriteScaleFactor);
 		
+		/*
 		Log.i(TAG, String.format("width:%1$d edge:%2$d scale:%3$f", width, 
 				GameManager.getInstance().SpriteCurrentEdge,
 				GameManager.getInstance().SpriteScaleFactor));
+		*/
 	}
 	
 	
@@ -286,8 +287,8 @@ public class GameManager {
 	
 	public void updateMazeWithNewBoxPos(int[] prevPos, int[] curPos){
 		
-		Log.i(TAG, String.format("prev: %1$d-%2$d", prevPos[0], prevPos[1]));
-		Log.i(TAG, String.format("cur: %1$d-%2$d", curPos[0], curPos[1]));
+		//Log.i(TAG, String.format("prev: %1$d-%2$d", prevPos[0], prevPos[1]));
+		//Log.i(TAG, String.format("cur: %1$d-%2$d", curPos[0], curPos[1]));
 		
 		char prevChar = mMazeChars.get(prevPos[0]).charAt(prevPos[1]);
 		char curChar = mMazeChars.get(curPos[0]).charAt(curPos[1]);
@@ -314,6 +315,36 @@ public class GameManager {
 		StringBuilder tmpBuilder = new StringBuilder(tmp);
 		tmpBuilder.setCharAt(pos[1], newChar);
 		mMazeChars.set(pos[0], tmpBuilder.toString());
+	}
+	
+	/*
+	 * 	for sound control
+	 */
+	public void toggleSound() { 
+		if (mSoundEnable) {
+			mSoundEnable = false; 
+			if (ResourceManager.getInstance().gameSound.isPlaying())
+				ResourceManager.getInstance().gameSound.pause();
+		}
+		else {
+			mSoundEnable = true;
+			if (!ResourceManager.getInstance().gameSound.isPlaying()) {
+				ResourceManager.getInstance().gameSound.play();
+			}
+		}
+	}
+	
+	public void playSound() {
+		if (mSoundEnable) {
+			if (!ResourceManager.getInstance().gameSound.isPlaying()) {
+				ResourceManager.getInstance().gameSound.play();
+			}
+		}
+	}
+	
+	public void stopSound() {
+		if (ResourceManager.getInstance().gameSound.isPlaying())
+			ResourceManager.getInstance().gameSound.pause();
 	}
 	
 	/*	

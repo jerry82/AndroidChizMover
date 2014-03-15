@@ -92,7 +92,7 @@ public final class GameDB {
 						cursor.getInt(3), 
 						cursor.getInt(4));
 				
-				Log.i(TAG, "level: " + entity.getContent());
+				//Log.i(TAG, "level: " + entity.getContent());
 			}
 		}
 		catch (Exception ex) {

@@ -3,7 +3,6 @@ package jstudio.chizmover.scene;
 import jstudio.chizmover.managers.ResourceManager;
 
 import org.andengine.entity.sprite.Sprite;
-import org.andengine.entity.sprite.vbo.ISpriteVertexBufferObject;
 import org.andengine.entity.text.Text;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.texture.region.ITextureRegion;
@@ -24,7 +23,7 @@ public class TextSprite extends Sprite {
 		//load font
 		if (mFont == null) {
 			mFont = ResourceManager.getInstance().getGameFont(size, color);
-			mFont.load();
+			//mFont.load();
 		}
 		
 		Text mainText = new Text(0, 0, 

@@ -1,6 +1,5 @@
 package jstudio.chizmover.scene;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import jstudio.chizmover.data.PackEntity;
@@ -8,17 +7,14 @@ import jstudio.chizmover.managers.GameManager;
 import jstudio.chizmover.managers.ResourceManager;
 
 import org.andengine.engine.camera.Camera;
-import org.andengine.entity.Entity;
 import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.DelayModifier;
-import org.andengine.entity.modifier.MoveByModifier;
 import org.andengine.entity.modifier.IEntityModifier.IEntityModifierListener;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.ParallaxBackground;
 import org.andengine.entity.scene.background.ParallaxBackground.ParallaxEntity;
-import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.input.touch.detector.ClickDetector;
@@ -126,7 +122,6 @@ public class EpisodeScreen extends ManagedScene implements IScrollDetectorListen
 	private void createTitle() {
 		if (mFont == null) {
 			mFont = ResourceManager.getInstance().getGameFont(45, Color.WHITE);
-			mFont.load();
 		}
 		
 		mTitle = new Text(0, 0, 
@@ -144,13 +139,11 @@ public class EpisodeScreen extends ManagedScene implements IScrollDetectorListen
 	    
 		if (mFont1 == null) {
 			mFont1 = ResourceManager.getInstance().getGameFont(45, android.graphics.Color.WHITE);
-			mFont1.load();
 		}
 		
 		//load font
 		if (mFont2 == null) {
 			mFont2 = ResourceManager.getInstance().getGameFont(30, android.graphics.Color.WHITE);
-			mFont2.load();
 		}
 		
 		//create lock item

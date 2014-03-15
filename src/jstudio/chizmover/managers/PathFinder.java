@@ -309,7 +309,6 @@ public class PathFinder {
 			int parentID = mNodeDict.get(id).ParentID;
 			Log.d(TAG, String.format("%1$d|%2$d", id, parentID));
 		}
-		
 	}
 	
 	private void displayHGValues() {
