@@ -6,6 +6,8 @@ import jstudio.chizmover.runtime.MainActivity;
 
 import org.andengine.audio.music.Music;
 import org.andengine.audio.music.MusicFactory;
+import org.andengine.audio.sound.Sound;
+import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.Engine;
 import org.andengine.engine.LimitedFPSEngine;
 import org.andengine.engine.camera.Camera;
@@ -31,7 +33,11 @@ public class ResourceManager {
 	public LimitedFPSEngine engine;
 	public Camera camera;
 	
-	public Music gameSound;
+	public Music gameMusic;
+	public Sound gameWinSound;
+	public Sound gameRunSound;
+	public Sound gamePushSound;
+	public Sound gameInHoleSound;
 	
 	public float cameraWidth;
 	public float cameraHeight;
@@ -280,9 +286,16 @@ public class ResourceManager {
 	
 	private void loadSounds() {
 		MusicFactory.setAssetBasePath("sounds/");
+		SoundFactory.setAssetBasePath("sounds/");
 		try {
-			gameSound = MusicFactory.createMusicFromAsset(getEngine().getMusicManager(), getActivity(), "ingame.mp3");
-			gameSound.setLooping(true);
+			gameMusic = MusicFactory.createMusicFromAsset(getEngine().getMusicManager(), getActivity(), "ingame.mp3");
+			gameMusic.setLooping(true);
+			gameMusic.setVolume(0.5f);
+			
+			gameWinSound = SoundFactory.createSoundFromAsset(getEngine().getSoundManager(), getActivity(), "clap.mp3");
+			gamePushSound = SoundFactory.createSoundFromAsset(getEngine().getSoundManager(), getActivity(), "push.mp3");
+			gameInHoleSound = SoundFactory.createSoundFromAsset(getEngine().getSoundManager(), getActivity(), "inhole.mp3");
+			gameRunSound = SoundFactory.createSoundFromAsset(getEngine().getSoundManager(), getActivity(), "run.mp3");
 			
 		} catch (IllegalStateException e) {
 			// TODO Auto-generated catch block

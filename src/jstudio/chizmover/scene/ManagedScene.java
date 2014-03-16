@@ -60,7 +60,7 @@ public abstract class ManagedScene extends Scene {
 		
 		//don't play music in other screen
 		if (!(this instanceof InGameScreen)) {
-			GameManager.getInstance().stopSound();
+			GameManager.getInstance().stopMusic();
 		}
 	}
 	

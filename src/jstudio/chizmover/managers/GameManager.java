@@ -144,6 +144,9 @@ public class GameManager {
 				SceneManager.getInstance().showWinGameScreen();
 			}
 		}
+		
+		//play win sound
+		GameManager.getInstance().playGameWinSound();
 	}
 	
 	/*
@@ -323,28 +326,52 @@ public class GameManager {
 	public void toggleSound() { 
 		if (mSoundEnable) {
 			mSoundEnable = false; 
-			if (ResourceManager.getInstance().gameSound.isPlaying())
-				ResourceManager.getInstance().gameSound.pause();
+			if (ResourceManager.getInstance().gameMusic.isPlaying())
+				ResourceManager.getInstance().gameMusic.pause();
 		}
 		else {
 			mSoundEnable = true;
-			if (!ResourceManager.getInstance().gameSound.isPlaying()) {
-				ResourceManager.getInstance().gameSound.play();
+			if (!ResourceManager.getInstance().gameMusic.isPlaying()) {
+				ResourceManager.getInstance().gameMusic.play();
 			}
 		}
 	}
 	
-	public void playSound() {
+	public void playMusic() {
 		if (mSoundEnable) {
-			if (!ResourceManager.getInstance().gameSound.isPlaying()) {
-				ResourceManager.getInstance().gameSound.play();
+			if (!ResourceManager.getInstance().gameMusic.isPlaying()) {
+				ResourceManager.getInstance().gameMusic.play();
 			}
 		}
 	}
 	
-	public void stopSound() {
-		if (ResourceManager.getInstance().gameSound.isPlaying())
-			ResourceManager.getInstance().gameSound.pause();
+	public void stopMusic() {
+		if (ResourceManager.getInstance().gameMusic.isPlaying())
+			ResourceManager.getInstance().gameMusic.pause();
+	}
+	
+	public void playGameWinSound() {
+		if (mSoundEnable) {
+			ResourceManager.getInstance().gameWinSound.play();
+		}
+	}
+	
+	public void playInHoleSound() {
+		if (mSoundEnable) {
+			ResourceManager.getInstance().gameInHoleSound.play();
+		}
+	}
+	
+	public void playPushSound() {
+		if (mSoundEnable) {
+			ResourceManager.getInstance().gamePushSound.play();
+		}
+	}
+	
+	public void playRunSound() {
+		if (mSoundEnable) {
+			ResourceManager.getInstance().gameRunSound.play();
+		}
 	}
 	
 	/*	

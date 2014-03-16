@@ -48,6 +48,7 @@ public class MainActivity extends BaseGameActivity {
 		engineOptions.setWakeLockOptions(WakeLockOptions.SCREEN_ON);
 		
 		engineOptions.getAudioOptions().setNeedsMusic(true);
+		engineOptions.getAudioOptions().setNeedsSound(true);
 		
 		return engineOptions;
 	}

@@ -1,6 +1,7 @@
 package jstudio.chizmover.scene;
 
 import jstudio.chizmover.managers.CurrentMenu;
+import jstudio.chizmover.managers.GameManager;
 import jstudio.chizmover.managers.ResourceManager;
 import jstudio.chizmover.managers.SceneManager;
 

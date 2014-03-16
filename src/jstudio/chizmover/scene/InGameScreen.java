@@ -208,7 +208,7 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 		
 		//play music
 		try {
-			GameManager.getInstance().playSound();
+			GameManager.getInstance().playMusic();
 		} 
 		catch (MusicReleasedException e) {
 			e.printStackTrace();
@@ -373,6 +373,8 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 	
 	private void moveTheBox(final Sprite box, final char moveChar) {
 		
+		
+		
 		float dx = 0f, dy = 0f;
 		
 		final int[] prevPos = GameManager.getInstance().getMatrixPos(new float[] {box.getX(), box.getY()});
@@ -434,7 +436,7 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 					@Override
 					public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
 						// TODO Auto-generated method stub
-						
+						GameManager.getInstance().playPushSound();
 					}
 					
 					@Override
@@ -478,6 +480,7 @@ public class InGameScreen extends ManagedScene implements IOnSceneTouchListener 
 							IEntity pEntity) {
 			            mBotIsMoving = true;
 			            //Log.i(TAG, "bot runs");
+			            GameManager.getInstance().playRunSound();
 					}
 
 					@Override
